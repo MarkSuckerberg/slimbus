@@ -38,9 +38,7 @@
   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
   crossorigin=""></script>
 <script>
-let roundID = window.location.pathname.split('/')[2];
-
-fetch('/rounds/'+roundID+'?format=json')
+fetch('/rounds/{{round.map_url}}?format=json')
   .then(function(response) {
     return response.json();
   })
@@ -48,15 +46,15 @@ fetch('/rounds/'+roundID+'?format=json')
     var map = L.map("map", {
       attributionControl: false,
       minZoom: 1,
-      maxZoom: 6,
+      maxZoom: 4,
       maxBounds: [[0,0],[-256,256]],
       crs: L.CRS.Simple,
       preferCanvas: true,
     }).setView([-128,128], 2);
-    L.tileLayer("https://renderbus.s3.amazonaws.com/tiles/"+data.map_url+"/{z}/tile_{x}-{y}.png", {
+    L.tileLayer("https://suckerberg.ga/renders/tiles/{{round.map_url}}/tiles/{z}/tile_{x}-{y}.png", {
       minZoom: 1,
-      maxZoom: 6,
-      maxNativeZoom: 5,
+      maxZoom: 4,
+      maxNativeZoom: 3,
       continuousWorld: true,
       tms: false
     }).addTo(map);
@@ -67,7 +65,7 @@ fetch('/rounds/'+roundID+'?format=json')
     if(data.stats.explosion){
       $('#bombs').removeClass('invisible')
     }
-    fetch('/rounds/'+roundID+'/logs?format=json')
+    fetch('/rounds/{{round.id}}/logs?format=json')
     .then(function(response) {
       return response.json();
     })
@@ -98,7 +96,7 @@ fetch('/rounds/'+roundID+'?format=json')
             return
           }
         }
-        fetch('/rounds/'+roundID+'/logs/'+file+'/json')
+        fetch('/rounds/{{round.id}}/logs/'+file+'/json')
           .then(function(response) {
             return response.json();
           })
@@ -137,7 +135,7 @@ fetch('/rounds/'+roundID+'?format=json')
         }
       }
       loaded = true
-      fetch('/deaths/round/'+roundID+'?format=json')
+      fetch('/deaths/round/{{round.id}}?format=json')
         .then(function(response) {
           return response.json();
         })
@@ -173,7 +171,7 @@ fetch('/rounds/'+roundID+'?format=json')
         }
       }
       loaded = true
-      fetch('/rounds/'+roundID+'/explosion?format=json')
+      fetch('/rounds/{{round.id}}/explosion?format=json')
         .then(function(response) {
           return response.json();
         })

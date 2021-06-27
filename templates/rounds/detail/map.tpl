@@ -19,7 +19,7 @@
   var roundstart = timestamp('{{round.start_datetime}}');
   var roundend = timestamp('{{round.end_datetime}}');
 
-  L.tileLayer("https://renderbus.s3.amazonaws.com/tiles/{{round.map_url}}/{z}/tile_{x}-{y}.png", {
+  L.tileLayer("https://suckerberg.ga/renders/tiles/{{round.map_url}}/tiles/{z}/tile_{x}-{y}.png", {
     minZoom: 1,
     maxZoom: 6,
     maxNativeZoom: 5,
@@ -129,7 +129,7 @@
     })
 
   var pdalog = L.layerGroup();
-      fetch('{{app.url}}round.php?round={{round.id}}&file=pda.txt&json=true')
+      fetch('{{app.url}}round.php?round={{round.id}}&file=pda.log&json=true')
         .then(function(response) {
           return response.json();
         })

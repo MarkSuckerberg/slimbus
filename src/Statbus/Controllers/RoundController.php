@@ -144,6 +144,7 @@ class RoundController Extends Controller {
 
 
   public function getRound(int $id){
+    (new StatbusController($this->container))->submitToAuditLog('RND', "did a thing");
     $id = filter_var($id, FILTER_VALIDATE_INT);
     $round = $this->DB->row("SELECT $this->columns,
       MAX(next.id) AS next,
@@ -217,7 +218,7 @@ class RoundController Extends Controller {
 
     $this->ogdata['url'] = $url;
     $this->ogdata['title'] = "$file logfile for Round #$round->id on $round->server";
-    $this->ogdata['description'] = (($logs) ? count($logs) : 0)." lines found in $file.";
+    #$this->ogdata['description'] = (($logs) ? count($logs) : 0)." lines found in $file.";
     if(!$logs){
       return $this->view->render($response, 'base/error.tpl',[
         'code'    => 404,
@@ -236,7 +237,7 @@ class RoundController Extends Controller {
   }
 
   public function getGameLogs($request, $response, $args){
-    $file = 'game.txt';
+    $file = 'game.log';
     $round = $this->getRound($args['id']);
     if(isset($args['page'])) {
       $this->page = filter_var($args['page'], FILTER_VALIDATE_INT);

@@ -36,7 +36,7 @@ class LogsController Extends Controller {
       'headers' => ['Accept-Encoding' => 'gzip'],
       'curl' => [
           CURLOPT_FOLLOWLOCATION => TRUE,
-          CURLOPT_REFERER => "atlantaned.space",
+          CURLOPT_REFERER => "suckerberg.ga",
         ]
       ]);
     } catch (GCeption $e){
@@ -67,26 +67,33 @@ class LogsController Extends Controller {
   }
   public function getFile($file, $format = false){
     if (!in_array($file, [
+      'asset.log',
       'atmos.html',
-      // 'attack.txt',
+      'attack.log',
+      'config_error.log',
       'cargo.html',
-      // 'game.txt',
+      'game.log',
       'gravity.html',
       'hallucinations.html',
-      'initialize.txt',
-      'manifest.txt',
+      'hrefs.log',
+      'initialize.log',
+      'job_debug.log',
+      'manifest.log',
+      'map_errors.log',
       'newscaster.json',
-      'pda.txt',
+      'pda.log',
       'portals.html',
       'profiler.json',
-      'qdel.txt',
+      'qdel.log',
       'radiation.html',
       'records.html',
       'research.html',
       'round_end_data.json',
-      'runtime.txt',
+      'runtime.log',
       'singulo.html',
-      'telecomms.txt',
+      'shuttle.log',
+      'telecomms.log',
+      'tgui.log',
       'supermatter.html',
       'wires.html',
     ])) {
@@ -122,7 +129,7 @@ class LogsController Extends Controller {
   private function parseLogFile($file){
     switch($file){
       default:
-
+        $this->genericTxtLogParse($file);
       break;
 
       case 'atmos.html':
@@ -138,7 +145,7 @@ class LogsController Extends Controller {
         $this->genericLogParse('hallucinations.html');
       break;
 
-      case 'manifest.txt':
+      case 'manifest.log':
         $this->parseManifest();
       break;
 
@@ -146,7 +153,7 @@ class LogsController Extends Controller {
         $this->parseNewscaster();
       break;
 
-      case 'pda.txt':
+      case 'pda.log':
         $this->parsePDA();
       break;
 
@@ -217,6 +224,22 @@ class LogsController Extends Controller {
     }
     $this->file = $lines;
   }
+
+  private function genericTxtLogParse($file){
+    $lines = [];
+    $matches = [];
+    preg_match_all("/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})\] ([a-zA-Z0-9]+): (.*)$/mi", $this->file, $matches, PREG_SET_ORDER);
+    foreach ($matches as $tmp){
+      $entry = [];
+      $entry['timestamp'] = $tmp[1];
+      $entry['device'] = $tmp[2];
+      $entry['text'] = $tmp[3];
+      $entry['color'] = substr(sha1($entry['device']), 0, 6);
+      $lines[] = $entry;
+    }
+    $this->file = $lines;
+  }
+
   private function parseManifest(){
     $lines = [];
     $matches = [];
@@ -328,7 +351,7 @@ class LogsController Extends Controller {
 
   public function processGameLogs(){
     $i = 0;
-    $handle = fopen("phar://".$this->zip."/game.txt", "r");
+    $handle = fopen("phar://".$this->zip."/game.log", "r");
     if ($handle) {
         while (($line = fgets($handle)) !== false) {
           $tmp = [];
@@ -378,7 +401,7 @@ class LogsController Extends Controller {
       fclose($handle);
     }
 
-    $handle = fopen("phar://".$this->zip."/attack.txt", "r");
+    $handle = fopen("phar://".$this->zip."/attack.log", "r");
     if ($handle) {
         while (($line = fgets($handle)) !== false) {
           $tmp = [];

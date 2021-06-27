@@ -27,7 +27,7 @@ class StatbusController extends Controller {
   public function getBigNumbers(){
     $numbers = new \stdclass;
     $numbers->playtime = number_format($this->DB->row("SELECT sum(tbl_role_time.minutes) AS minutes FROM tbl_role_time WHERE tbl_role_time.job = 'Living';")->minutes);
-    $numbers->deaths = number_format($this->DB->cell("SELECT count(id) as deaths FROM tbl_death;")+rand(-15,15));//fuzzed
+    $numbers->deaths = number_format($this->DB->cell("SELECT count(id) as deaths FROM tbl_death;"));
     $numbers->rounds = number_format($this->DB->cell("SELECT count(id) as rounds FROM tbl_round;"));
     $numbers->books = number_format($this->DB->cell("SELECT count(tbl_library.id) FROM tbl_library WHERE tbl_library.content != ''
       AND (tbl_library.deleted IS NULL OR tbl_library.deleted = 0)"));
@@ -176,9 +176,8 @@ class StatbusController extends Controller {
 
   public function getPolyLine() {
     if($this->container->get('settings')['statbus']['remote_log_src']){
-      $server = pick('sybil,terry');
       try {
-        $poly = $this->guzzle->request('GET','https://tgstation13.org/parsed-logs/'.$server.'/data/npc_saves/Poly.json');
+        $poly = $this->guzzle->request('GET',$this->container->get('settings')['statbus']['remote_log_src'].'npc_saves/Poly.json');
         $poly = json_decode((string) $poly->getBody(), TRUE);
         return pick($poly['phrases']);
       }
@@ -249,7 +248,7 @@ class StatbusController extends Controller {
         $handle = fopen(ROOTDIR."/tmp/candidates.json", 'w+');
         fwrite($handle, json_encode($update));
         fclose($handle);
-      } catch(Excention $e){
+      } catch(Exception $e){
         die($e->getMessage());
       }
     }
