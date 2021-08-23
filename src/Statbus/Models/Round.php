@@ -41,8 +41,12 @@ class Round {
     $round->end_state = ucwords($round->end_state);
 
     $round = $this->mapStatus($round);
-    $round->server_data = (object) $this->settings['servers'][array_search($round->port, array_column($this->settings['servers'], 'port'))];
+    $round->server_data = (object) $this->settings['servers'][array_search($round->ip, array_column($this->settings['servers'], 'ip'))];
    
+    #$server = array_keys(array_column($this->settings['servers'], 'port'), $round->port);
+    #if(count($server) == 1)       $round->server_data = (object) $this->settings['servers'][$server[0]];
+    #else if(count($server) > 1)   $round->server_data = (object) $this->settings['servers'][array_keys(array_column($this->settings['servers'], 'ip'), $round->ip)];
+
     if (!$round->port) {
       $round->server = 'Unknown';
     } else {

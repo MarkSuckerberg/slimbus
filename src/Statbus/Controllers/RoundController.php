@@ -17,6 +17,7 @@ class RoundController Extends Controller {
       tbl_round.shutdown_datetime,
       tbl_round.end_datetime,
       tbl_round.server_port AS port,
+      tbl_round.server_ip AS ip,
       tbl_round.commit_hash,
       tbl_round.game_mode AS mode,
       tbl_round.game_mode_result AS result,

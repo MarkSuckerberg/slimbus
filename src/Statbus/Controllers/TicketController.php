@@ -28,7 +28,7 @@ class TicketController extends Controller {
       WHERE tbl_ticket.action = 'Ticket Opened';") / $this->per_page);
     $tickets = $this->DB->run("
       SELECT 
-        t.server_ip,
+        t.server_ip as ip,
         t.server_port as port,
         t.round_id as round,
         t.ticket,
@@ -66,7 +66,7 @@ class TicketController extends Controller {
     $round = filter_var($round, FILTER_VALIDATE_INT);
     $tickets = $this->DB->run("SELECT
         t.id,
-        t.server_ip,
+        t.server_ip as ip,
         t.server_port as port,
         t.round_id as round,
         t.ticket,
@@ -106,7 +106,7 @@ class TicketController extends Controller {
     $ticket = filter_var($ticket, FILTER_VALIDATE_INT);
     $tickets = $this->DB->run("SELECT
         t.id,
-        t.server_ip,
+        t.server_ip as ip,
         t.server_port as port,
         t.round_id as round,
         t.ticket,
@@ -145,7 +145,7 @@ class TicketController extends Controller {
       FROM tbl_ticket t
       WHERE t.action = 'Ticket Opened' AND (t.recipient = ? OR t.sender = ?);", $ckey, $ckey) / $this->per_page);
     $tickets = $this->DB->run("SELECT 
-        t.server_ip,
+        t.server_ip as ip,
         t.server_port as port,
         t.round_id as round,
         t.ticket,

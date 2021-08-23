@@ -3,7 +3,7 @@
 {% block dashtitle %}Map - Round #{{round.id}}{% endblock %}
 {% block content %}
 
-<div class="leaflet-map" id="map"></div>
+<div id="map"></div>
 
 {% endblock %}
 
@@ -31,34 +31,34 @@
 {% endblock %}
 
 {% block js %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-  integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-  crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-  integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-  crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
 <script>
-fetch('/rounds/{{round.map_url}}?format=json')
-  .then(function(response) {
-    return response.json();
-  })
+fetch('/rounds/{{round.id}}?format=json')
+  .then(response => response.json())
   .then(function(data) {
     var map = L.map("map", {
       attributionControl: false,
       minZoom: 1,
-      maxZoom: 4,
-      maxBounds: [[0,0],[-256,256]],
+      maxBounds: [
+        [64, -64],
+        [-512, 512]
+      ],
+      maxBoundsViscosity: 1.0,
+      maxZoom: 6,
       crs: L.CRS.Simple,
       preferCanvas: true,
-    }).setView([-128,128], 2);
-    L.tileLayer("https://suckerberg.ga/renders/tiles/{{round.map_url}}/tiles/{z}/tile_{x}-{y}.png", {
+    }).setView([-64, 64], 3);
+    L.tileLayer("https://shiptest.ga/renders/tiles/{{round.map_url}}/tiles/{z}/tile_{x}-{y}.png", {
       minZoom: 1,
-      maxZoom: 4,
+      maxZoom: 6,
+      minNativeZoom: 2,
       maxNativeZoom: 3,
       continuousWorld: true,
       tms: false
     }).addTo(map);
-    if(data.deaths){
+    /*if(data.deaths){
       $('#deaths').removeClass('invisible')
       $('#deathCount').text(data.deaths)
     }
@@ -116,10 +116,10 @@ fetch('/rounds/{{round.map_url}}?format=json')
             logLayers[file].addTo(map)
           })
       });
-    })
+    })*/
     return map;
   })
-  .then(function(map){
+  /*.then(function(map){
     var corpses = L.layerGroup();
     var loaded = false
     $('#deaths').click(function(e){
@@ -212,6 +212,6 @@ fetch('/rounds/{{round.map_url}}?format=json')
       bombs.addTo(map);
       return map;
     })
-  })
+  })*/
 </script>
 {% endblock %}

@@ -43,8 +43,14 @@ class Ticket {
     $ticket->status_class = 'success';
     $ticket->type = 'text';
     $ticket->message = strip_tags($ticket->message);
-    $ticket->server_data = (object) $this->settings['servers'][array_search($ticket->port, array_column($this->settings['servers'], 'port'))];
+
+    $ticket->server_data = (object) $this->settings['servers'][array_search($ticket->ip, array_column($this->settings['servers'], 'ip'))];
     
+    #$server = array_keys(array_column($this->settings['servers'], 'port'), $ticket->port);
+    #if(count($server) == 1)  $ticket->server_data = (object) $this->settings['servers'][$server[0]];
+    #else                     $ticket->server_data = (object) $this->settings['servers'][array_keys(array_column($this->settings['servers'], 'ip'), long2ip($ticket->ip))];
+
+
     //This is for parsing individual ticket views
     switch ($ticket->action) {
       case 'Reply':
