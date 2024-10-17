@@ -1,1 +1,0 @@
-<a href="https://scrubby.melonmesa.com/round/{{round.id}}" target="_blank" rel="noopener noreferrer" class="btn btn-danger btn-sm"><i class="fas fa-external-link-alt"></i> Scrubby</a>

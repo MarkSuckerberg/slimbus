@@ -11,11 +11,11 @@ class Death {
   }
 
   public function parseDeath(&$death) {
-    $death->server = $this->settings['servers'][array_search($death->ip, array_column($this->settings['servers'], 'ip'))]['name'];
+    #$death->server = $this->settings['servers'][array_search($death->ip, array_column($this->settings['servers'], 'ip'))]['name'];
 
-    #$server = array_keys(array_column($this->settings['servers'], 'port'), $death->port);
-    #if(count($server) == 1)  $death->server = $this->settings['servers'][$server[0]]['name'];
-    #else                     $death->server = $this->settings['servers'][array_keys(array_column($this->settings['servers'], 'ip'), long2ip($death->ip))]['name'];
+    $server = array_keys(array_column($this->settings['servers'], 'port'), $death->port);
+    if(count($server) == 1)  $death->server = $this->settings['servers'][$server[0]]['name'];
+    else                     $death->server = $this->settings['servers'][array_search($death->ip, array_column($this->settings['servers'], 'ip'))]['name'];
 
     $death->class = '';
     if($death->lakey)   $death->class = "murder";

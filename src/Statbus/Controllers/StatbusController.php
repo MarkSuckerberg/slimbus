@@ -102,7 +102,8 @@ class StatbusController extends Controller {
       'interval' => $interval,
       'perms'    => $perms,
       'wide'     => true,
-      'maxRange' => $maxRange
+      'maxRange' => $maxRange,
+      'ogdata'   => $this->ogdata
     ]);
   }
 
@@ -162,7 +163,8 @@ class StatbusController extends Controller {
     return $this->view->render($response, 'info/admin_log.tpl',[
       'logs'   => $logs,
       'info'   => $this,
-      'wide'   => true
+      'wide'   => true,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -177,7 +179,7 @@ class StatbusController extends Controller {
   public function getPolyLine() {
     if($this->container->get('settings')['statbus']['remote_log_src']){
       try {
-        $poly = $this->guzzle->request('GET',$this->container->get('settings')['statbus']['remote_log_src'].'npc_saves/Poly.json');
+        $poly = $this->guzzle->request('GET',$this->container->get('settings')['statbus']['remote_log_src'].'/Poly.json');
         $poly = json_decode((string) $poly->getBody(), TRUE);
         return pick($poly['phrases']);
       }
@@ -201,8 +203,9 @@ class StatbusController extends Controller {
     ORDER BY `time` DESC;";
     $data = $this->DB->run($query);
     return $this->view->render($this->response, 'info/heatmap.tpl',[
-      'data' => json_encode($data),
-      'wide' => TRUE
+      'data'    => json_encode($data),
+      'wide'    => TRUE,
+      'ogdata'  => $this->ogdata
     ]);
   }
 
@@ -218,7 +221,8 @@ class StatbusController extends Controller {
       $minutes = $this->DB->run($query);
       return $this->view->render($this->response, 'info/30days.tpl',[
         'minutes' => json_encode($minutes),
-        'wide' => TRUE
+        'wide'    => TRUE,
+        'ogdata'  => $this->ogdata
       ]);
   }
 
@@ -233,7 +237,8 @@ class StatbusController extends Controller {
       'action' => $action,
       'text'   => $text,
       'ckey'   => ($this->user->ckey) ? $this->user->ckey : null,
-      'ip'     => ip2long($_SERVER['REMOTE_ADDR'])
+      'ip'     => ip2long($_SERVER['REMOTE_ADDR']),
+      'ogdata'  => $this->ogdata
     ]);
   }
 
@@ -286,7 +291,8 @@ class StatbusController extends Controller {
     return $this->view->render($response, 'election/candidates.tpl',[
       'interval' => $interval,
       'admins' => $candidates,
-      'list' => str_replace(['(',')',"'"], '', $list)
+      'list' => str_replace(['(',')',"'"], '', $list),
+      'ogdata' => $this->ogdata
     ]);
   }
   public function mapularity ($request, $response, $args) {
@@ -308,7 +314,8 @@ class StatbusController extends Controller {
     $maps = array_unique($maps);
     return $this->view->render($response, 'info/mapularity.tpl',[
       'maps' => $maps,
-      'mapularity' => $tmp
+      'mapularity' => $tmp,
+      'ogdata' => $this->ogdata
     ]);
   }
 }

@@ -74,7 +74,7 @@
         source: {
           ckey: {
             ajax: {
-              url: "/tgdb/suggest/",
+              url: "/stats/tgdb/suggest/",
               method: "get",
               data: {
                 ckey: function () { return $('#tgdbsearch').val()}
@@ -88,7 +88,7 @@
         mustSelectItem: true,
         display: ['ckey'],
         href: function (item) {
-          return "/tgdb/player/" + item.ckey
+          return "/stats/tgdb/player/" + item.ckey
         },
         callback: {
           onClickAfter: function (node, a, item, event) {
@@ -99,4 +99,4 @@
         })
       </script>
       {% endif %}
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css" integrity="sha384-REHJTs1r2ErKBuJB0fCK99gCYsVjwxHrSU0N7I1zl9vZbggVJXRMsv/sLlOAGb4M" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://shiptest.net/assets/fontawesome/css/all.css">

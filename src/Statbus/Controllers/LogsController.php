@@ -36,12 +36,12 @@ class LogsController Extends Controller {
       'headers' => ['Accept-Encoding' => 'gzip'],
       'curl' => [
           CURLOPT_FOLLOWLOCATION => TRUE,
-          CURLOPT_REFERER => "shiptest.ga",
+          CURLOPT_REFERER => "shiptest.net",
         ]
       ]);
     } catch (GCeption $e){
       return false;
-    } 
+    }
     $logs = $res->getBody()->getContents();
     if(!$logs){
       return false;
@@ -72,28 +72,27 @@ class LogsController Extends Controller {
       'attack.log',
       'config_error.log',
       'cargo.html',
-      'game.log',
       'gravity.html',
       'hallucinations.html',
-      'hrefs.log',
       'initialize.log',
       'job_debug.log',
       'manifest.log',
       'map_errors.log',
       'newscaster.json',
+      'overlay.log',
       'pda.log',
       'portals.html',
       'profiler.json',
       'qdel.log',
       'radiation.html',
-      'records.html',
       'research.html',
+      'round_end_data.html',
       'round_end_data.json',
       'runtime.log',
+      'sendmaps.json',
       'singulo.html',
       'shuttle.log',
       'telecomms.log',
-      'tgui.log',
       'supermatter.html',
       'wires.html',
     ])) {
@@ -110,11 +109,6 @@ class LogsController Extends Controller {
     $this->file = filter_var($this->file, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_NO_ENCODE_QUOTES);
     }
     switch($format){
-      default:
-        $this->parseLogFile($file);
-        return $this->file;
-      break;
-
       case 'raw':
         return $this->file;
       break;
@@ -123,15 +117,16 @@ class LogsController Extends Controller {
         $this->parseLogFile($file);
         return $this->file;
       break;
+
+      default:
+        $this->parseLogFile($file);
+        return $this->file;
+      break;
     }
   }
 
   private function parseLogFile($file){
     switch($file){
-      default:
-        $this->genericTxtLogParse($file);
-      break;
-
       case 'atmos.html':
         $this->genericLogParse('atmos.html');
         $this->parseAtmosLogs();
@@ -181,6 +176,26 @@ class LogsController Extends Controller {
       case 'wires.html':
         $this->genericLogParse('wires.html');
       break;
+
+      case 'runtime.log':
+        $this->genericTxtLogParse('runtime.log');
+      break;
+
+      case 'shuttle.log':
+        $this->genericTxtLogParse('shuttle.log');
+      break;
+
+      case 'map_errors.log':
+        $this->genericTxtLogParse('map_errors.log');
+      break;
+
+      case 'config_error.log':
+        $this->genericTxtLogParse('config_error.log');
+      break;
+
+      default:
+        $this->genericTxtLogParse($file);
+      break;
     }
   }
 
@@ -228,7 +243,7 @@ class LogsController Extends Controller {
   private function genericTxtLogParse($file){
     $lines = [];
     $matches = [];
-    preg_match_all("/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})\] ([a-zA-Z0-9]+): (.*)$/mi", $this->file, $matches, PREG_SET_ORDER);
+    preg_match_all("/\[(?:\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}.\d{3})\] ([a-zA-Z# ]*: )(.*(?:\n -.*)*)/mi", $this->file, $matches, PREG_SET_ORDER);
     foreach ($matches as $tmp){
       $entry = [];
       $entry['timestamp'] = $tmp[1];
@@ -336,8 +351,9 @@ class LogsController Extends Controller {
   }
 
   public function getGameLogs(){
+    return false;
     if(!$this->alt_db) return false;
-    if(!$this->checkForLogs()) $this->processGameLogs();
+    //if(!$this->checkForLogs()) $this->processGameLogs();
     return $this->alt_db->run("SELECT `timestamp`, `type`, `text`, x, y, z, area, id
       FROM round_logs
       WHERE round = ?
@@ -356,7 +372,7 @@ class LogsController Extends Controller {
         while (($line = fgets($handle)) !== false) {
           $tmp = [];
           $entry = [];
-          if(!preg_match("/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})] (\w*): (.*)/", $line, $tmp)) continue;
+          if(!preg_match("/\[(\d{4}-\d{2}-\d{2} )?(\d{2}:\d{2}:\d{2})(\.\d{3})?\] ?(\w*): (.*)/", $line, $tmp)) continue;
           $entry['type'] = $tmp[2];
           $entry['time'] = $tmp[1];
           $entry['text'] = $tmp[3];

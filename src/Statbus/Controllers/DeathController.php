@@ -65,7 +65,8 @@ class DeathController Extends Controller{
       'deaths'      => $deaths,
       'death'       => $this,
       'wide'        => true,
-      'breadcrumbs' => $this->breadcrumbs
+      'breadcrumbs' => $this->breadcrumbs,
+      'ogdata'      => $this->ogdata
     ]);
   }
 

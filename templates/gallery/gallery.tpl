@@ -48,36 +48,20 @@
 <h1>{{server.name}} Art Gallery</h1>
 <hr>
 <div class="row">
-  <div class="col-md-4">
-    <h2>Public Collection</h2>
-    <hr>
-    <ul class="list-unstyled">
-    {% set path = 'library' %}
-    {% for collection in art.library %}
-      {% include 'gallery/html/artwork.tpl' %}
-    {% endfor %}
-    </ul>
-  </div>
-  <div class="col-md-4">
-    <h2>Private Collection</h2>
-    <hr>
-    <ul class="list-unstyled">
-    {% set path = 'library_private' %}
-    {% for collection in art.library_private %}
-      {% include 'gallery/html/artwork.tpl' %}
-    {% endfor %}
-    </ul>
-  </div>
-  <div class="col-md-4">
-    <h2>Secure Collection</h2>
-    <hr>
-    <ul class="list-unstyled">
-    {% set path = 'library_secure' %}
-    {% for collection in art.library_secure %}
-      {% include 'gallery/html/artwork.tpl' %}
-    {% endfor %}
-    </ul>
-  </div>
+  {% for name, collection in art|sort((a, b) => b|length <=> a|length) %}
+    {% if collection|length > 0 %}
+      <div class="col-md-4">
+        <h2>Collection "{{name|title}}"</h2>
+        <hr>
+        <ul class="list-unstyled">
+        {% set path = name %}
+        {% for collection in art[name] %}
+          {% include 'gallery/html/artwork.tpl' %}
+        {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endfor %}
 </div>
 
 {% endblock %}

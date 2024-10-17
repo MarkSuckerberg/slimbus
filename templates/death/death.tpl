@@ -63,19 +63,7 @@
 </div>
 <hr>
 <div class="row">
-  <div class="col-lg-6">
-    <div class="card mb-4">
-      <h3 class="card-header">Location</h3>
-      <div class="card-body h4">
-        {{death.mapname}} - {{death.pod}} ({{death.x}}, {{death.y}}, {{death.z}})
-        {% if death.z == 2 %}
-        <iframe src="https://suckerberg.ga/renderbus/#5/{{death.x}}/{{death.y}}/{{death.map_url}}"></iframe><br>
-            <a href="https://suckerberg.ga/renderbus/#5/{{death.x}}/{{death.y}}/{{death.map_url}}" target="_blank" rel="noopener noreferrer">Full view</a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-6 col-md-12">
+  <div class="col-md-12">
     <div class="card mb-4">
       <h3 class="card-header">Time of Death</h3>
       <div class="card-body h4">

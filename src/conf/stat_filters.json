@@ -142,7 +142,15 @@
   "ic_blocked_words":{},
   "immortality_talisman_uses":{},
   "item_deconstructed":{},
-  "item_printed":{},
+  "item_printed":{
+    "label": {
+      "key": "Printer Path",
+      "subvalue": "Printed Item",
+      "value": "Count",
+      "filter": "/obj/item||/obj/item",
+      "splain": "/obj/item removed for readability purposes"
+    }
+  },
   "item_used_for_combat":{
     "label": {
       "key": "Weapon",

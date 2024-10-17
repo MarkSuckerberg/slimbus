@@ -18,7 +18,7 @@
 <table class="table table-bordered table-sm">
   <tbody>
     <tr>
-      <th class="text-right align-middle ">Station Name</th>
+      <th class="text-right align-middle ">Sector Name</th>
       <td class="align-middle ">{{round.station_name}}</td>
       <th class="align-middle text-right">Deaths</th>
       <td class="align-middle">
@@ -27,22 +27,13 @@
       </td>
     </tr>
     <tr>
-      <th class="align-middle text-right">Escape Shuttle</th>
-      <td class="align-middle">
-        {% if not round.shuttle %}
-          <em>No Escape Shuttle</em>
-        {% else %}
-          {{round.shuttle}}
-        {% endif %}
-      </td>
-      <th class="align-middle text-right">Logs</th>
-      <td class="align-middle">
+      <th class="align-middle text-right" colspan="2">Logs</th>
+      <td class="align-middle" colspan="2">
         {% if round.logs %}
           <a class="btn btn-primary btn-sm" href="{{round.remote_logs_dir}}" target="_blank" rel="noopener noreferrer">Original <i class="fas fa-external-link-alt"></i></a>
           {% if user.canAccessTGDB %}
             <a class="btn btn-primary btn-sm" href="{{round.admin_logs_dir}}" target="_blank" rel="noopener noreferrer">Original <i class="fas fa-external-link-alt"></i></a>
           {% endif %}
-          {% include 'rounds/html/extraLinks.tpl' ignore missing %}
         {% else %}
         <em>Not available</em>
         {% endif %}

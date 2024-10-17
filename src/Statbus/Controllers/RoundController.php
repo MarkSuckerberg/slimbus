@@ -46,7 +46,7 @@ class RoundController Extends Controller {
     }
     $rounds = $this->DB->run("SELECT $this->columns
       FROM tbl_round
-      WHERE tbl_round.shutdown_datetime IS NOT NULL
+      WHERE tbl_round.end_state IS NOT NULL
       ORDER BY tbl_round.shutdown_datetime DESC
       LIMIT ?,?", ($this->page * $this->per_page) - $this->per_page, $this->per_page);
 
@@ -64,7 +64,8 @@ class RoundController Extends Controller {
       'rounds'      => $rounds,
       'round'       => $this,
       'wide'        => true,
-      'breadcrumbs' => $this->breadcrumbs
+      'breadcrumbs' => $this->breadcrumbs,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -75,7 +76,8 @@ class RoundController Extends Controller {
         'code'    => 404,
         'message' => 'Round not found, or is ongoing',
         'link'    => $this->router->pathFor('round.index'),
-        'linkText'=> 'Round Listing'
+        'linkText'=> 'Round Listing',
+        'ogdata'      => $this->ogdata
       ]);
     }
     $format = null;
@@ -129,6 +131,7 @@ class RoundController Extends Controller {
     $names = $this->DB->run("SELECT station_name, id FROM tbl_round WHERE station_name IS NOT NULL ORDER BY RAND() DESC LIMIT 0, 1000;");
     return $this->view->render($response, 'rounds/stationnames.tpl',[
       'names'       => $names,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -140,6 +143,7 @@ class RoundController Extends Controller {
     return $this->view->render($response, 'rounds/map.tpl',[
       'round'       => $round,
       'breadcrumbs' => $this->breadcrumbs,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -301,7 +305,8 @@ class RoundController Extends Controller {
       'round'       => $this,
       'wide'        => true,
       'stat'        => $stat,
-      'breadcrumbs' => $this->breadcrumbs
+      'breadcrumbs' => $this->breadcrumbs,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -334,7 +339,8 @@ class RoundController Extends Controller {
       'round'       => $this,
       'wide'        => true,
       'stat'        => $stat,
-      'breadcrumbs' => $this->breadcrumbs
+      'breadcrumbs' => $this->breadcrumbs,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -360,7 +366,8 @@ class RoundController Extends Controller {
       'wide'        => true,
       'stat'        => $stat,
       'breadcrumbs' => $this->breadcrumbs,
-      'ckey'        => $ckey
+      'ckey'        => $ckey,
+      'ogdata'      => $this->ogdata
     ]);
   }
 
@@ -368,7 +375,7 @@ class RoundController Extends Controller {
     if(!$this->userCanAccessTGDB){
       return false;
     }
-    $rounds = $this->DB->run("SELECT DISTINCT(*) FROM tbl_round WHERE `shutdown_datetime` IS NULL LIMIT 0, 4 ORDER BY id DESC");
+    $rounds = $this->DB->run("SELECT DISTINCT(*) FROM tbl_round WHERE `end_state` IS NULL LIMIT 0, 4 ORDER BY id DESC");
     return $request->withJson($rounds);
   }
 
@@ -402,7 +409,8 @@ class RoundController Extends Controller {
         'start'  => $start,
         'end'    => $end,
         'min'    => $minmax->min,
-        'max'    => $minmax->max
+        'max'    => $minmax->max,
+        'ogdata'      => $this->ogdata
       ]);
   }
 

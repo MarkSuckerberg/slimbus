@@ -4,7 +4,7 @@
         {% if user.ckey and poly %}
           <div id="poly" class="engradio">
             [Poly] &ldquo;{{poly}}&rdquo;
-            <img src="https://shiptest.ga/stats/icons/parrot-sit.png" height="64" width="64"  alt="And now a word from Poly" />
+            <img src="https://shiptest.net/stats/icons/parrot-sit.png" height="64" width="64"  alt="And now a word from Poly" />
           </div>
       </small>
       {% endif %}

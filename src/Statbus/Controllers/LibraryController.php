@@ -153,9 +153,9 @@ class LibraryController Extends Controller {
     if(isset($args['server'])){
       $server = ucfirst($args['server']);
       if($server = $servers[array_search($server, array_column($servers,'name'))]){
-        $json_url = str_replace('data/logs', 'data', $server['public_logs'].'paintings.json');
+        $json_url = str_replace("logs", "", $server['public_logs'].'paintings.json');
         try{
-          $res = $this->guzzle->request('GET',$json_url);
+          $res = $this->guzzle->request('GET', $json_url);
         } catch (GCeption $e){
           return false;
         }
@@ -170,8 +170,8 @@ class LibraryController Extends Controller {
         }
         if('GET' === $request->getMethod()){ //Just browsing
           return $this->view->render($response, 'gallery/gallery.tpl',[
-            'art' => $art,
-            'url' => str_replace('data/logs/', 'data/paintings', $server['public_logs']),
+            'art' => get_object_vars($art),
+            'url' => str_replace('logs/', 'paintings/', $server['public_logs']),
             'server' => $server
           ]);
         } elseif ($this->alt_db && 'POST' === $request->getMethod()){

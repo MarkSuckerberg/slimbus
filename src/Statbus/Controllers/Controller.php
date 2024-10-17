@@ -28,8 +28,10 @@ class Controller {
     $this->response = $this->container->get('response');
     $this->ogdata = [
       'site_name' => $this->container->get('settings')['statbus']['app_name'],
-      'url'       => $this->request->getUri()->getBaseUrl().$this->router->pathFor('statbus'),
+      'url'       => $this->request->getUri(),
       'type'      => 'object',
+      'title'     => $this->container->get('settings')['statbus']['app_name'],
+      'image'     => 'https://shiptest.net/images/shiptest-logo.png'
     ];
     $this->view->getEnvironment()->addGlobal('ogdata', $this->ogdata);
     $this->view->getEnvironment()->addGlobal('settings', $this->container->get('settings')['statbus']);
@@ -46,7 +48,7 @@ class Controller {
   }
 
   public function getFullURL($path){
-    $base = trim($this->request->getUri()->getBaseUrl(), '/');
+    $base = str_replace("/stats", "", trim($this->request->getUri()->getBaseUrl(), '/'));
     return $base.$path;
   }
 }

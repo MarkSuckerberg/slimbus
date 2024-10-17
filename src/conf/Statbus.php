@@ -65,7 +65,7 @@ return [
     'Double Agents'=>'user-ninja',
     'Dynamic Mode'=>'dumpster-fire',
     'Everyone Is The Traitor And Also'=>'',
-    'Extended'=>'running',
+    'Extended'=>'user-astronaut',
     'Extended Events'=>'',
     'Families'=>'',
     'Gang War'=>'',
