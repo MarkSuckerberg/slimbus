@@ -9,6 +9,10 @@ use Statbus\Models\Player as Player;
 
 class MessageController extends Controller
 {
+  public string $url;
+  private Message $messageModel;
+  private Player $pm;
+  
   public function __construct(ContainerInterface $container)
   {
     parent::__construct($container);

@@ -2,6 +2,7 @@
 
 namespace Statbus\Controllers;
 use DateTime;
+use ParagonIE\EasyDB\EasyDB;
 use Psr\Container\ContainerInterface;
 use Statbus\Controllers\Controller as Controller;
 use Statbus\Models\Player as Player;
@@ -9,12 +10,14 @@ use Statbus\Models\Player as Player;
 class PlayerController extends Controller
 {
 
+  private array $sb;
+  public Player $playerModel;
+
   public function __construct(ContainerInterface $container)
   {
     parent::__construct($container);
     $this->sb = $this->container->get('settings')['statbus'];
     $this->playerModel = new Player($this->sb);
-    $this->alt_db = $this->container->get('ALT_DB');
   }
 
   public function getPlayer($request, $response, $args)
@@ -190,9 +193,10 @@ class PlayerController extends Controller
 
   public function getPlayerNamesFromManifest($ckey)
   {
-    if (!$this->alt_db)
+    $alt_db = $this->container->get('ALT_DB');
+    if (!$alt_db)
       return false;
-    return $this->alt_db->run("SELECT DISTINCT(`name`),
+    return $alt_db->run("SELECT DISTINCT(`name`),
       count(`name`) AS `times`
       FROM manifest
       WHERE ckey = ?

@@ -13,7 +13,7 @@ class UserController extends Controller
   //This controller is STRICTLY reserved for the current logged in user ONLY
   //and details about them.
 
-  public $user = false;
+  public mixed $user = false;
   private $skipRankVerify = false;
 
   private PlayerController $playerController;
@@ -22,24 +22,25 @@ class UserController extends Controller
   public function __construct(ContainerInterface $container)
   {
     parent::__construct($container);
-    $this->playerModel = new Player($this->container->get('settings')['statbus']);
+    $this->settings = $this->container->get('settings')['statbus'];
+    $this->playerModel = new Player($this->settings);
     $this->playerController = new PlayerController($this->container);
-    $this->settings = $this->container->get('settings');
 
-    if (isset($_SESSION['sb']['byond_ckey']) && $this->settings['statbus']['auth']['remote_auth']) {
-      $this->user = $this->playerController->getPlayerByCkey($_SESSION['sb']['byond_ckey']);
-    } elseif ($this->settings['statbus']['ip_auth']) {
+    if(isset($_SESSION['ckey']) && $this->settings['auth']['remote_auth']){
+      $this->user = $this->playerController->getPlayerByCkey($_SESSION['ckey']);
+    } elseif ($this->settings['ip_auth']){
       $this->user = $this->playerController->getPlayerByIP(ip2long($_SERVER['REMOTE_ADDR']));
-      if ($this->user->days > $this->settings['statbus']['ip_auth_days']) {
+      if($this->user->days > $this->settings['ip_auth_days']){
         //Skip admin rank verification. 
         $this->skipRankVerify = true;
       }
     }
-    if ($this->user) {
-      $this->verifyAdminRank($this->skipRankVerify);
-      $this->user = $this->playerModel->parsePlayer($this->user);
-      $this->view->getEnvironment()->addGlobal('user', $this->user);
+    if(!isset($this->user->ckey)){
+      return;
     }
+    $this->verifyAdminRank($this->skipRankVerify);
+    $this->user = $this->playerModel->parsePlayer($this->user);
+    $this->view->getEnvironment()->addGlobal('user', $this->user);
   }
 
   public function verifyAdminRank($skip = false)
@@ -60,9 +61,9 @@ class UserController extends Controller
       $this->user->rank = 'Player';
       return;
     }
-    $perms = $this->container->get('settings')['statbus']['perm_flags'];
-    foreach ($perms as $p => $b) {
-      if ($this->user->rank->flags & $b) {
+    $perms = $this->settings['perm_flags'];
+    foreach($perms as $p => $b){
+      if ($this->user->rank->flags & $b){
         $this->user->rank->permissions[] = $p;
       }
     }
@@ -92,10 +93,9 @@ class UserController extends Controller
     return false;
   }
 
-  public function me($request, $response, $args)
-  {
+   public function me($request, $response, $args) {
     $lastWords = $this->playerController->getLastWords($this->user->ckey);
-    return $this->view->render($response, 'me/index.tpl', [
+    return $this->view->render($response, 'me/index.tpl',[
       'lastWords' => $lastWords
     ]);
   }

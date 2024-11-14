@@ -2,10 +2,14 @@
 
 namespace Statbus\Controllers;
 
+use GuzzleHttp\Psr7\Request as Psr7Request;
 use ParagonIE\EasyDB\EasyDB;
 use Psr\Container\ContainerInterface;
 use Slim\Router;
 use Statbus\Extensions\PrefixedDB;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Slim\Http\Request;
 
 class Controller
 {
@@ -15,6 +19,8 @@ class Controller
   protected PrefixedDB $DB;
   protected Router $router;
   protected $settings;
+  protected ResponseInterface $response;
+  protected RequestInterface $request;
 
   public $page = 1;
   public $pages = 0;
@@ -22,9 +28,6 @@ class Controller
 
   public $breadcrumbs = [];
   public $ogdata = [];
-
-  public $request;
-  public $response;
 
   public function __construct(ContainerInterface $container)
   {
@@ -57,7 +60,8 @@ class Controller
 
   public function getFullURL($path)
   {
-    $base = str_replace("/stats", "", trim($this->request->getUri()->getBaseUrl(), '/'));
+    $baseUri = $this->request->getUri();
+    $base = $baseUri->getScheme() . '://' . $baseUri->getHost();
     return $base . $path;
   }
 }
