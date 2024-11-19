@@ -58,13 +58,17 @@ class AuthController extends Controller
       ]);
     }
 
+    echo $this->oidc->getVerifiedClaims();
+
     //Get a new ID when logging in
     regenerate_statbus_session();
     $_SESSION['ckey'] = $ckey;
 
 
     return $this->view->render($response, 'auth/return.tpl', [
-      'return_uri' => $_SESSION['return_uri'] ?: false
+      'return_uri' => $_SESSION['return_uri'] ?: false,
+      'user' => $this->container->get('user'),
+      'user_ckey' => $ckey
     ]);
   }
 

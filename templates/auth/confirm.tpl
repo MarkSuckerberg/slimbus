@@ -6,9 +6,7 @@
 <p>
   <code>{{statbus.app_name}}</code> would like to access the following account information from <code>{{statbus.auth.remote_auth}}</code>:
 <ul>
-  <li>Your PhpBB Username</li>
-  <li>Your Byond key, if set</li>
-  <li>Your Github username, if set</li>
+  <li>Your BYOND ckey</li>
 </ul>
 </p>
 
