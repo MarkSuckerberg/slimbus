@@ -19,7 +19,7 @@ class AuthController extends Controller
 
     $this->settings = $container->get('settings')['statbus']['auth'];
 
-    if (!isset($settings['remote_auth'])) {
+    if (!isset($this->settings['remote_auth'])) {
       return;
     }
 
