@@ -58,7 +58,7 @@ class AuthController extends Controller
       ]);
     }
 
-    echo $this->oidc->getVerifiedClaims();
+    echo json_encode($this->oidc->getVerifiedClaims());
 
     //Get a new ID when logging in
     regenerate_statbus_session();
