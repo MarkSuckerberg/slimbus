@@ -1,11 +1,22 @@
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="The Shiptest statbus, for accessing round data, library books and art, and more!">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<meta charset="utf-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, shrink-to-fit=no"
+/>
+<meta
+  name="description"
+  content="The Shiptest statbus, for accessing round data, library books and art, and more!"
+/>
+<link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+  integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+  crossorigin="anonymous"
+/>
 {% for k, v in ogdata %}
 <meta property="og:{{k}}" content="{{v}}" />
 {% endfor %}
 <style>
-{% include 'base/css/style.css' %}
+  {% include 'base/css/style.css' %}
 </style>
-{% include 'base/tracker.html' ignore missing %}
+{% include 'tracker.html' ignore missing %}

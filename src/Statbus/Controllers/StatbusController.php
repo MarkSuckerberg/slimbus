@@ -6,27 +6,32 @@ use Psr\Container\ContainerInterface;
 use Statbus\Controllers\Controller as Controller;
 use Statbus\Models\Player as Player;
 use Statbus\Controllers\MessageController as MessageController;
+use GuzzleHttp\Exception\ConnectException;
 
-class StatbusController extends Controller {
+class StatbusController extends Controller
+{
 
 
-  public function __construct(ContainerInterface $container) {
+  public function __construct(ContainerInterface $container)
+  {
     parent::__construct($container);
     $this->guzzle = $this->container->get('guzzle');
     $this->user = $this->container->get('user');
     $this->sb = $this->container->get('settings')['statbus'];
   }
 
-  public function index($request, $response, $args) {
-    return $this->view->render($response, 'index.tpl',[
+  public function index($request, $response, $args)
+  {
+    return $this->view->render($response, 'index.tpl', [
       'numbers' => $this->getBigNumbers(),
-      'poly'    => $this->getPolyLine(),
+      'poly' => $this->getPolyLine(),
     ]);
   }
 
-  public function getBigNumbers(){
+  public function getBigNumbers()
+  {
     $numbers = new \stdclass;
-    $numbers->playtime = number_format($this->DB->row("SELECT sum(tbl_role_time.minutes) AS minutes FROM tbl_role_time WHERE tbl_role_time.job = 'Living';")->minutes);
+    $numbers->playtime = number_format($this->DB->rowObj("SELECT sum(tbl_role_time.minutes) AS minutes FROM tbl_role_time WHERE tbl_role_time.job = 'Living';")->minutes);
     $numbers->deaths = number_format($this->DB->cell("SELECT count(id) as deaths FROM tbl_death;"));
     $numbers->rounds = number_format($this->DB->cell("SELECT count(id) as rounds FROM tbl_round;"));
     $numbers->books = number_format($this->DB->cell("SELECT count(tbl_library.id) FROM tbl_library WHERE tbl_library.content != ''
@@ -34,19 +39,21 @@ class StatbusController extends Controller {
     return $numbers;
   }
 
-  public function doAdminsPlay($request, $response, $args){
+  public function doAdminsPlay($request, $response, $args)
+  {
     $args = $request->getQueryParams();
     $maxRange = 30;
-    if($this->user->canAccessTGDB){
+    if ($this->user && $this->user->canAccessTGDB) {
       $maxRange = 90;
     }
-    if(isset($args['interval'])) {
+    if (isset($args['interval'])) {
       $options = array(
-        'options'=>array(
-        'default'=>20,
-        'min_range'=>2,
-        'max_range'=>$maxRange
-      ));
+        'options' => array(
+          'default' => 20,
+          'min_range' => 2,
+          'max_range' => $maxRange
+        )
+      );
       $interval = filter_var($args['interval'], FILTER_VALIDATE_INT, $options);
     } else {
       $interval = 20;
@@ -72,43 +79,47 @@ class StatbusController extends Controller {
     $perms = $this->container->get('settings')['statbus']['perm_flags'];
 
     $pm = new Player($this->container->get('settings')['statbus']);
-    foreach ($admins as &$a){
-      foreach($perms as $p => $b){
-        if ($a->flags & $b){
+    foreach ($admins as &$a) {
+      foreach ($perms as $p => $b) {
+        if ($a->flags & $b) {
           $a->permissions[] = $p;
         }
       }
       $a->total = $a->ghost + $a->living;
-      if(isset($args['json'])) continue;
+      if (isset($args['json']))
+        continue;
       $a = $pm->parsePlayer($a);
     }
     $format = $request->getQueryParam('format');
-    if('wiki' === $format) {
+    if ('wiki' === $format) {
       $return = '';
-      foreach ($admins as $a){
-        $return.= "{{Admin<br>";
-        $return.= "|Name=$a->ckey<br>";
-        $return.= "|Rank=$a->rank<br>";
-        $return.= "|Feedback=$a->feedback";
-        $return.= "}}<br>";
+      foreach ($admins as $a) {
+        $return .= "{{StaffMember<br>";
+        $return .= "|Name=$a->ckey<br>";
+        $return .= "|Rank=$a->rank";
+        if (isset($a->feedback)) {
+          $return .= "<br>|Feedback=$a->feedback";
+        }
+        $return .= "}}<br>";
       }
-      return $this->view->render($response, 'dump.tpl',[
+      return $this->view->render($response, 'dump.tpl', [
         'dump' => $return,
         'wide' => true
       ]);
     }
-    return $this->view->render($response, 'info/admins.tpl',[
-      'admins'   => $admins,
+    return $this->view->render($response, 'info/admins.tpl', [
+      'admins' => $admins,
       'interval' => $interval,
-      'perms'    => $perms,
-      'wide'     => true,
+      'perms' => $perms,
+      'wide' => true,
       'maxRange' => $maxRange,
-      'ogdata'   => $this->ogdata
+      'ogdata' => $this->ogdata
     ]);
   }
 
-  public function adminLogs($request, $response, $args){
-    if(isset($args['page'])) {
+  public function adminLogs($request, $response, $args)
+  {
+    if (isset($args['page'])) {
       $this->page = filter_var($args['page'], FILTER_VALIDATE_INT);
     }
     $this->pages = ceil($this->DB->cell("SELECT count(tbl_admin_log.id) FROM tbl_admin_log") / $this->per_page);
@@ -125,91 +136,136 @@ class StatbusController extends Controller {
       ORDER BY L.datetime DESC
       LIMIT ?,?", ($this->page * $this->per_page) - $this->per_page, $this->per_page);
     $pm = new Player($this->container->get('settings')['statbus']);
-    foreach ($logs as &$l){
+    foreach ($logs as &$l) {
       $l->admin = new \stdclass;
       $l->admin->ckey = $l->adminckey;
       $l->admin->rank = $l->adminrank;
       $l->admin = $pm->parsePlayer($l->admin);
       $l->class = '';
-      $l->icon  = 'edit';
-      switch($l->operation){
+      $l->icon = 'edit';
+      switch ($l->operation) {
         case 'add admin':
           $l->class = 'success';
-          $l->icon  = 'user-plus';
-        break;
+          $l->icon = 'user-plus';
+          break;
         case 'remove admin':
           $l->class = 'danger';
-          $l->icon  = 'user-times';
-        break;
+          $l->icon = 'user-times';
+          break;
         case 'change admin rank':
           $l->class = 'info';
-          $l->icon  = 'user-tag';
-        break;
+          $l->icon = 'user-tag';
+          break;
         case 'add rank':
           $l->class = 'success';
-          $l->icon  = 'plus-square';
-        break;
+          $l->icon = 'plus-square';
+          break;
         case 'remove rank':
           $l->class = 'warning';
-          $l->icon  = 'minus-square';
-        break;
+          $l->icon = 'minus-square';
+          break;
         case 'change rank flags':
           $l->class = 'primary';
-          $l->icon  = 'flag';
-        break;
+          $l->icon = 'flag';
+          break;
       }
       $l->operation = ucwords($l->operation);
     }
-    return $this->view->render($response, 'info/admin_log.tpl',[
-      'logs'   => $logs,
-      'info'   => $this,
-      'wide'   => true,
-      'ogdata'      => $this->ogdata
+    return $this->view->render($response, 'info/admin_log.tpl', [
+      'logs' => $logs,
+      'info' => $this,
+      'wide' => true,
+      'ogdata' => $this->ogdata
     ]);
   }
 
-  public function tgdbIndex() {
+  public function tgdbIndex()
+  {
     //This method exists solely to scaffold the tgdb index page
     $memos = (new MessageController($this->container))->getAdminMemos();
-    return $this->view->render($this->response, 'tgdb/index.tpl',[
+    return $this->view->render($this->response, 'tgdb/index.tpl', [
       'memos' => $memos
     ]);
   }
 
-  public function getPolyLine() {
-    if($this->container->get('settings')['statbus']['remote_log_src']){
+  public function getPolyLine()
+  {
+    if ($this->container->get('settings')['statbus']['remote_log_src']) {
       try {
-        $poly = $this->guzzle->request('GET',$this->container->get('settings')['statbus']['remote_log_src'].'/Poly.json');
+        $poly = $this->guzzle->request('GET', $this->container->get('settings')['statbus']['remote_log_src'] . '/Poly.json');
         $poly = json_decode((string) $poly->getBody(), TRUE);
         return pick($poly['phrases']);
-      }
-      catch (\Guzzle\Http\Exception\ConnectException $e) {
-        $response = json_encode((string)$e->getResponse()->getBody());
+      } catch (ConnectException $e) {
+        $response = json_encode((string) $e);
       }
     } else {
       return false;
     }
   }
 
-  public function popGraph(){
+  public function popGraph()
+  {
     $query = "SELECT
     FLOOR(AVG(admincount)) AS admins,
     FLOOR(AVG(playercount)) AS `players`,
     DATE_FORMAT(`time`, '%Y-%m-%e %H:00:00') as `date`,
-    count(round_id) AS rounds
+    count(round_id) AS rounds,
+    AVG(playercount) OVER(ORDER BY `time` ROWS BETWEEN 30 PRECEDING AND CURRENT ROW) as `averagePlayers`
     FROM tbl_legacy_population
     WHERE `time` > CURDATE() - INTERVAL 30 DAY
     GROUP BY HOUR (`time`), DAY(`TIME`), MONTH(`TIME`), YEAR(`TIME`)
     ORDER BY `time` DESC;";
     $data = $this->DB->run($query);
-    return $this->view->render($this->response, 'info/heatmap.tpl',[
-      'data'    => json_encode($data),
-      'wide'    => TRUE,
-      'ogdata'  => $this->ogdata
+    return $this->view->render($this->response, 'info/heatmap.tpl', [
+      'data' => json_encode($data),
+      'wide' => TRUE,
+      'ogdata' => $this->ogdata
     ]);
   }
 
-  public function last30Days(){
+  public function popRetention()
+  {
+
+    $results = $this->DB->run('WITH login_log AS
+      (
+        SELECT distinct(ckey), TIMESTAMPDIFF(MONTH, (SELECT MIN(DATETIME) FROM tbl_connection_log), DATETIME) AS login_month, DATETIME as date
+        FROM tbl_connection_log
+        GROUP BY 1,2
+        ORDER BY 1,2
+      ),
+      time_lapse AS
+      (
+        SELECT ckey, login_month, LAG(login_month, 1) over (PARTITION BY ckey ORDER BY ckey, login_month) AS Lag, date
+        FROM login_log
+      ),
+      time_diff_calc AS
+      (
+        SELECT ckey, login_month, Lag, login_month - Lag AS time_diff, date
+        FROM time_lapse
+      ),
+      player_categorized AS
+      (
+        SELECT  ckey,
+          login_month,
+          date,
+          (time_diff = 1 OR NULL) as retained,
+          (time_diff > 1 OR NULL) as returned,
+          (time_diff IS NULL OR NULL) as new
+      FROM time_diff_calc
+      )
+      SELECT login_month as month, COUNT(returned) as returned, COUNT(retained) as retained, COUNT(new) as new, STR_TO_DATE(EXTRACT(YEAR_MONTH FROM date), "%Y%m") as datestamp
+      FROM player_categorized
+      GROUP BY 1');
+
+    return $this->view->render($this->response, 'info/retention.tpl', [
+      'data' => json_encode($results),
+      'wide' => TRUE,
+      'ogdata' => $this->ogdata
+    ]);
+  }
+
+  public function last30Days()
+  {
     $query = "SELECT SUM(`delta`) AS `minutes`,
       DATE_FORMAT(`datetime`, '%Y-%m-%d %H:00:00') AS `date`,
       `job`
@@ -218,59 +274,62 @@ class StatbusController extends Controller {
       AND `DATETIME` > CURDATE() - INTERVAL 30 DAY
       GROUP BY `job`, HOUR(`datetime`), DAY(`DATETIME`), MONTH(`DATETIME`), YEAR(`DATETIME`)
       ORDER BY `date` ASC;";
-      $minutes = $this->DB->run($query);
-      return $this->view->render($this->response, 'info/30days.tpl',[
-        'minutes' => json_encode($minutes),
-        'wide'    => TRUE,
-        'ogdata'  => $this->ogdata
-      ]);
-  }
-
-  public function submitToAuditLog($action, $text){
-    //Check if the audit log exists
-    try {
-      $this->DB->run("SELECT 1 FROM tbl_external_activity LIMIT 1");
-    } catch (\PDOException $e){
-      return false;
-    }
-    $this->DB->insert('tbl_external_activity',[
-      'action' => $action,
-      'text'   => $text,
-      'ckey'   => ($this->user->ckey) ? $this->user->ckey : null,
-      'ip'     => ip2long($_SERVER['REMOTE_ADDR']),
-      'ogdata'  => $this->ogdata
+    $minutes = $this->DB->run($query);
+    return $this->view->render($this->response, 'info/30days.tpl', [
+      'minutes' => json_encode($minutes),
+      'wide' => TRUE,
+      'ogdata' => $this->ogdata
     ]);
   }
 
-  public function electionManager($request, $response, $args) {
-    if($request->isPost() && $this->sb['election_officer'] === $this->user->ckey){
+  public function submitToAuditLog($action, $text)
+  {
+    //Check if the audit log exists
+    try {
+      $this->DB->run("SELECT 1 FROM tbl_external_activity LIMIT 1");
+    } catch (\PDOException $e) {
+      return false;
+    }
+    $this->DB->insert('tbl_external_activity', [
+      'action' => $action,
+      'text' => $text,
+      'ckey' => ($this->user->ckey) ? $this->user->ckey : null,
+      'ip' => ip2long($_SERVER['REMOTE_ADDR']),
+      'ogdata' => $this->ogdata
+    ]);
+  }
+
+  public function electionManager($request, $response, $args)
+  {
+    if ($request->isPost() && $this->sb['election_officer'] === $this->user->ckey) {
       $update = $request->getParsedBody()['candidates'];
       $update = explode(",", $update);
-      foreach($update as &$u){
+      foreach ($update as &$u) {
         $u = strtolower(preg_replace("/[^a-zA-Z0-9]/", '', $u));
       }
-      try{
-        $handle = fopen(ROOTDIR."/tmp/candidates.json", 'w+');
+      try {
+        $handle = fopen(ROOTDIR . "/tmp/candidates.json", 'w+');
         fwrite($handle, json_encode($update));
         fclose($handle);
-      } catch(Exception $e){
+      } catch (Exception $e) {
         die($e->getMessage());
       }
     }
     $args = $request->getQueryParams();
-    if(isset($args['interval'])) {
+    if (isset($args['interval'])) {
       $options = array(
-        'options'=>array(
-        'default'=>60,
-        'min_range'=>2,
-        'max_range'=>180
-      ));
+        'options' => array(
+          'default' => 60,
+          'min_range' => 2,
+          'max_range' => 180
+        )
+      );
       $interval = filter_var($args['interval'], FILTER_VALIDATE_INT, $options);
     } else {
       $interval = 60;
     }
-    $list = "('".implode("','",$this->sb['candidates'])."')";
-    $candidates = $this->DB->run("SELECT A.ckey,
+    $list = "('" . implode("','", $this->sb['candidates']) . "')";
+    $candidates = $this->DB->run("SELECT A.ckey, A.lastadminrank as rank,
       (SELECT count(C.id) FROM tbl_connection_log AS C
       WHERE A.ckey = C.ckey AND C.datetime BETWEEN CURDATE() - INTERVAL ? DAY AND CURDATE()) AS connections,
       (SELECT sum(G.delta) FROM tbl_role_time_log AS G
@@ -284,18 +343,19 @@ class StatbusController extends Controller {
       WHERE A.ckey IN $list
       GROUP BY A.ckey;", $interval, $interval, $interval);
     $pm = new Player($this->container->get('settings')['statbus']);
-    foreach ($candidates as &$a){
+    foreach ($candidates as &$a) {
       $a->total = $a->ghost + $a->living;
       $a = $pm->parsePlayer($a);
     }
-    return $this->view->render($response, 'election/candidates.tpl',[
+    return $this->view->render($response, 'election/candidates.tpl', [
       'interval' => $interval,
       'admins' => $candidates,
-      'list' => str_replace(['(',')',"'"], '', $list),
+      'list' => str_replace(['(', ')', "'"], '', $list),
       'ogdata' => $this->ogdata
     ]);
   }
-  public function mapularity ($request, $response, $args) {
+  public function mapularity($request, $response, $args)
+  {
     $mapularity = $this->DB->run("SELECT 
     date_format(r.initialize_datetime,'%M %Y') as `date`,
         count(r.id) as rounds, 
@@ -307,12 +367,12 @@ class StatbusController extends Controller {
         ORDER BY r.initialize_datetime DESC");
     $tmp = [];
     $maps = [];
-    foreach($mapularity as $row){
+    foreach ($mapularity as $row) {
       $tmp[$row->date][$row->map_name] = $row->rounds;
       $maps[] = $row->map_name;
     }
     $maps = array_unique($maps);
-    return $this->view->render($response, 'info/mapularity.tpl',[
+    return $this->view->render($response, 'info/mapularity.tpl', [
       'maps' => $maps,
       'mapularity' => $tmp,
       'ogdata' => $this->ogdata

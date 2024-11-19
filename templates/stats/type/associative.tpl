@@ -1,3 +1,3 @@
 <pre>
-  {{dump(stat.output)}}
+  {{dump(stat)}}
 </pre>

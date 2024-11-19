@@ -2,14 +2,21 @@
 
 namespace Statbus\Controllers;
 
+use ParagonIE\EasyDB\EasyDB;
 use Psr\Container\ContainerInterface;
 use Statbus\Controllers\Controller as Controller;
 use Statbus\Models\Ticket as Ticket;
 use Statbus\Models\Player as Player;
 
 
-class TicketController extends Controller {
-  public function __construct(ContainerInterface $container) {
+class TicketController extends Controller
+{
+  private Ticket $tm;
+  private Player $pm;
+  private EasyDB $alt_db;
+
+  public function __construct(ContainerInterface $container)
+  {
     parent::__construct($container);
     $this->settings = $this->container->get('settings')['statbus'];
     $this->tm = new Ticket($this->settings);
@@ -21,7 +28,8 @@ class TicketController extends Controller {
     $this->permaLink = 'ticket.single';
   }
 
-  public function getActiveTickets(){
+  public function getActiveTickets()
+  {
     $this->pages = ceil($this->DB->cell("SELECT
       count(tbl_ticket.id) 
       FROM tbl_ticket 
@@ -46,7 +54,7 @@ class TicketController extends Controller {
       GROUP BY t.id
       ORDER BY `timestamp` DESC
       LIMIT ?, ?;", ($this->page * $this->per_page) - $this->per_page, $this->per_page);
-    foreach ($tickets as &$t){
+    foreach ($tickets as &$t) {
       $t->sender = new \stdclass;
       $t->sender->ckey = $t->sender_ckey;
       $t->sender->rank = $t->s_rank;
@@ -62,7 +70,8 @@ class TicketController extends Controller {
     return $tickets;
   }
 
-  public function getTicketsForRound(int $round) {
+  public function getTicketsForRound(int $round)
+  {
     $round = filter_var($round, FILTER_VALIDATE_INT);
     $tickets = $this->DB->run("SELECT
         t.id,
@@ -85,7 +94,7 @@ class TicketController extends Controller {
       WHERE t.round_id = ?
       AND t.action = 'Ticket Opened'
       ORDER BY `timestamp` ASC;", $round);
-    foreach ($tickets as &$t){
+    foreach ($tickets as &$t) {
       $t->sender = new \stdclass;
       $t->sender->ckey = $t->sender_ckey;
       $t->sender->rank = $t->s_rank;
@@ -101,7 +110,8 @@ class TicketController extends Controller {
     return $tickets;
   }
 
-  public function getSingleTicket(int $round, int $ticket){
+  public function getSingleTicket(int $round, int $ticket)
+  {
     $round = filter_var($round, FILTER_VALIDATE_INT);
     $ticket = filter_var($ticket, FILTER_VALIDATE_INT);
     $tickets = $this->DB->run("SELECT
@@ -123,7 +133,7 @@ class TicketController extends Controller {
       WHERE t.round_id = ?
       AND t.ticket = ? 
       ORDER BY `timestamp` ASC;", $round, $ticket);
-    foreach ($tickets as &$t){
+    foreach ($tickets as &$t) {
       $t->sender = new \stdclass;
       $t->sender->ckey = $t->sender_ckey;
       $t->sender->rank = $t->s_rank;
@@ -139,7 +149,8 @@ class TicketController extends Controller {
     return $tickets;
   }
 
-  public function getTicketsForCkey(string $ckey) {
+  public function getTicketsForCkey(string $ckey)
+  {
     $this->pages = ceil($this->DB->cell("SELECT
       count(t.id) 
       FROM tbl_ticket t
@@ -164,9 +175,9 @@ class TicketController extends Controller {
       GROUP BY t.id
       ORDER BY `timestamp` DESC
       LIMIT ?, ?;", $ckey, $ckey, ($this->page * $this->per_page) - $this->per_page, $this->page * $this->per_page);
-      // var_dump(($this->page * $this->per_page) - $this->per_page);
-      // var_dump($this->page * $this->per_page);
-    foreach ($tickets as &$t){
+    // var_dump(($this->page * $this->per_page) - $this->per_page);
+    // var_dump($this->page * $this->per_page);
+    foreach ($tickets as &$t) {
       $t->sender = new \stdclass;
       $t->sender->ckey = $t->sender_ckey;
       $t->sender->rank = $t->s_rank;
@@ -182,48 +193,53 @@ class TicketController extends Controller {
     return $tickets;
   }
 
-  public function index($request, $response, $args) {
-    if(isset($args['page'])) {
+  public function index($request, $response, $args)
+  {
+    if (isset($args['page'])) {
       $this->page = filter_var($args['page'], FILTER_VALIDATE_INT);
     }
-    return $this->view->render($this->response, 'tickets/index.tpl',[
-        'tickets' => $this->getActiveTickets(),
-        'ticket' => $this,
-      ]);
+    return $this->view->render($this->response, 'tickets/index.tpl', [
+      'tickets' => $this->getActiveTickets(),
+      'ticket' => $this,
+    ]);
   }
 
-  public function roundTickets($request, $response, $args){
+  public function roundTickets($request, $response, $args)
+  {
     $this->path = 'ticket.round';
-    return $this->view->render($this->response, 'tickets/round.tpl',[
-        'tickets' => $this->getTicketsForRound($args['round']),
-        'round' => $args['round'],
-        'ticket' => $this
-      ]);
+    return $this->view->render($this->response, 'tickets/round.tpl', [
+      'tickets' => $this->getTicketsForRound($args['round']),
+      'round' => $args['round'],
+      'ticket' => $this
+    ]);
   }
 
-  public function single($request, $response, $args){
-    return $this->view->render($this->response, 'tickets/single.tpl',[
-        'tickets' => $this->getSingleTicket($args['round'],$args['ticket']),
-      ]);
+  public function single($request, $response, $args)
+  {
+    return $this->view->render($this->response, 'tickets/single.tpl', [
+      'tickets' => $this->getSingleTicket($args['round'], $args['ticket']),
+    ]);
   }
-  public function myTickets($request, $response, $args) {
-    if(isset($args['page'])) {
+  public function myTickets($request, $response, $args)
+  {
+    if (isset($args['page'])) {
       $this->page = filter_var($args['page'], FILTER_VALIDATE_INT);
     }
     $user = $this->container->get('user');
     $this->path = "me.tickets";
     $this->permaLink = "me.tickets.single";
-    return $this->view->render($this->response, 'tickets/me.tpl',[
+    return $this->view->render($this->response, 'tickets/me.tpl', [
       'tickets' => $this->getTicketsForCkey($user->ckey),
       'ticket' => $this,
     ]);
   }
-  public function myTicket($request, $response, $args){
-    $this->user = $this->container->get('user');
+  public function myTicket($request, $response, $args)
+  {
+    $user = $this->container->get('user');
 
     $tickets = $this->getSingleTicket($args['round'], $args['ticket']);
-    if(!in_array($this->user->ckey, [$tickets[0]->sender_ckey, $tickets[0]->recipient_ckey])) {
-      return $this->view->render($this->response, 'base/error.tpl',[
+    if (!in_array($user->ckey, [$tickets[0]->sender_ckey, $tickets[0]->recipient_ckey])) {
+      return $this->view->render($this->response, 'base/error.tpl', [
         'message' => 'You do not have permission to view this',
         'code' => 403
       ]);
@@ -231,31 +247,32 @@ class TicketController extends Controller {
 
     $canPublicize = false;
 
-    if(!$tickets[0]->recipient && $this->user->ckey === $tickets[0]->sender_ckey){
+    if (!$tickets[0]->recipient && $user->ckey === $tickets[0]->sender_ckey) {
       $canPublicize = TRUE; //Ahelps sent by anyone regardless of rank
     }
 
-    if($this->user->ckey === $tickets[0]->recipient_ckey) {
+    if ($user->ckey === $tickets[0]->recipient_ckey) {
       $canPublicize = TRUE; //Ahelps sent from admin to player
     }
-    if('POST' === $this->request->getMethod() && TRUE === $canPublicize){
+    if ('POST' === $request->getMethod() && TRUE === $canPublicize) {
       $this->setTicketStatus($tickets[0]->id);
     }
     $status = $this->ticketPublicityStatus($tickets[0]->id);
     @$status->canPublicize = $canPublicize;
 
-    return $this->view->render($this->response, 'tickets/single.me.tpl',[
+    return $this->view->render($this->response, 'tickets/single.me.tpl', [
       'tickets' => $tickets,
       'status' => $status
     ]);
   }
 
-  public function publicTicket($request, $response, $args){
+  public function publicTicket($request, $response, $args)
+  {
     $this->alt_db = $this->container->get('ALT_DB');
     $id = $this->getTicketIDFromIdentifier($args['identifier']);
     $status = $this->ticketPublicityStatus($id);
-    if($status && 1 !== $status->status){
-      return $this->view->render($this->response, 'base/error.tpl',[
+    if ($status && 1 !== $status->status) {
+      return $this->view->render($this->response, 'base/error.tpl', [
         'message' => 'You do not have permission to view this',
         'code' => 403
       ]);
@@ -263,36 +280,42 @@ class TicketController extends Controller {
     $ticket = $this->getFullTicketFromID($id);
     $tickets = $this->getSingleTicket($ticket->round_id, $ticket->ticket);
 
-    return $this->view->render($this->response, 'tickets/single.me.tpl',[
+    return $this->view->render($this->response, 'tickets/single.me.tpl', [
       'tickets' => $tickets,
       'status' => $status
     ]);
   }
 
-  private function getFullTicketFromID($id){
-    return($this->DB->row("SELECT round_id, ticket FROM tbl_ticket WHERE id = ?", $id));
+  private function getFullTicketFromID($id)
+  {
+    return ($this->DB->rowObj("SELECT round_id, ticket FROM tbl_ticket WHERE id = ?", $id));
   }
 
-  private function getTicketIDFromIdentifier($identifier) {
+  private function getTicketIDFromIdentifier($identifier)
+  {
     return $this->alt_db->cell("SELECT ticket FROM public_tickets WHERE identifier = ?", $identifier);
   }
 
-  private function ticketPublicityStatus($id){
+  private function ticketPublicityStatus($id)
+  {
     $this->alt_db = $this->container->get('ALT_DB');
-    $status = $this->alt_db->row("SELECT * FROM public_tickets WHERE ticket = ?", $id);
+    $status = $this->alt_db->rowObj("SELECT * FROM public_tickets WHERE ticket = ?", $id);
     return $status;
   }
 
-  private function setTicketStatus($id){
+  private function setTicketStatus($id)
+  {
     $status = $this->ticketPublicityStatus($id);
-    if(!$status){
-      $this->alt_db->insert("public_tickets", [
-        'ticket' =>  $id,
-        'status' => 1,
-        'identifier' => substr(hash('SHA512',base64_encode(random_bytes(32))),0,16)
+    if (!$status) {
+      $this->alt_db->insert(
+        "public_tickets",
+        [
+          'ticket' => $id,
+          'status' => 1,
+          'identifier' => substr(hash('SHA512', base64_encode(random_bytes(32))), 0, 16)
         ]
       );
-    } else if(1 === $status->status) {
+    } else if (1 === $status->status) {
       $this->alt_db->run("UPDATE public_tickets SET `status` = 0 WHERE ticket = ?", $id);
     } else {
       $this->alt_db->run("UPDATE public_tickets SET `status` = 1 WHERE ticket = ?", $id);

@@ -7,8 +7,10 @@ use Statbus\Controllers\Controller as Controller;
 use Statbus\Models\Messages as Message;
 use Statbus\Models\Player as Player;
 
-class MessageController extends Controller {
-  public function __construct(ContainerInterface $container) {
+class MessageController extends Controller
+{
+  public function __construct(ContainerInterface $container)
+  {
     parent::__construct($container);
     $this->messageModel = new Message($this->container->get('settings')['statbus']);
     $this->pm = new Player($this->container->get('settings')['statbus']);
@@ -17,7 +19,8 @@ class MessageController extends Controller {
     $this->url = $this->router->pathFor('message.index');
   }
 
-  public function getAdminMemos(){
+  public function getAdminMemos()
+  {
     $memos = $this->DB->run("SELECT
       M.id,
       M.type,
@@ -45,8 +48,9 @@ class MessageController extends Controller {
     return $memos;
   }
 
-  public function listing($request, $response, $args){
-    if(isset($args['page'])) {
+  public function listing($request, $response, $args)
+  {
+    if (isset($args['page'])) {
       $this->page = filter_var($args['page'], FILTER_VALIDATE_INT);
     }
     $messages = $this->DB->run("SELECT
@@ -91,15 +95,16 @@ class MessageController extends Controller {
       $m->editor->rank = $m->editorrank;
       $m->editor = $this->pm->parsePlayer($m->editor);
     }
-    return $this->view->render($this->response, 'messages/listing.tpl',[
+    return $this->view->render($this->response, 'messages/listing.tpl', [
       'messages' => $messages,
-      'message'  => $this
+      'message' => $this
     ]);
   }
 
-  public function getMessagesForCkey($ckey, $hide_secret = false, $page = 1){
+  public function getMessagesForCkey($ckey, $hide_secret = false, $page = 1)
+  {
     $secret = "";
-    if($hide_secret){
+    if ($hide_secret) {
       $secret = "AND M.SECRET = 0";
     }
     $this->page = filter_var($page, FILTER_VALIDATE_INT);
@@ -107,8 +112,9 @@ class MessageController extends Controller {
       AND (M.expire_timestamp > NOW() OR M.expire_timestamp IS NULL)
       AND M.targetckey = ?
       $secret", $ckey) / $this->per_page);
-    $this->url = $this->router->pathFor('player.messages',['ckey'=>$ckey]);
-    $messages = $this->DB->run("SELECT
+    $this->url = $this->router->pathFor('player.messages', ['ckey' => $ckey]);
+    $messages = $this->DB->run(
+      "SELECT
       M.id,
       M.type,
       M.adminckey,
@@ -134,9 +140,11 @@ class MessageController extends Controller {
       AND M.targetckey = ?
       $secret
       ORDER BY M.timestamp DESC
-      LIMIT ?,?", $ckey,
-        ($this->page * $this->per_page) - $this->per_page,
-        $this->per_page);
+      LIMIT ?,?",
+      $ckey,
+      ($this->page * $this->per_page) - $this->per_page,
+      $this->per_page
+    );
     foreach ($messages as $m) {
       $m = $this->messageModel->parseMessage($m);
       $m->admin = new \stdclass;
@@ -157,9 +165,10 @@ class MessageController extends Controller {
     return $messages;
   }
 
-  public function single($request, $response, $args){
+  public function single($request, $response, $args)
+  {
     $id = filter_var($args['id'], FILTER_VALIDATE_INT);
-    $message = $this->DB->row("SELECT
+    $message = $this->DB->rowObj("SELECT
       M.id,
       M.type,
       M.adminckey,
@@ -200,7 +209,7 @@ class MessageController extends Controller {
     $message->editor->rank = $message->editorrank;
     $message->editor = $this->pm->parsePlayer($message->editor);
 
-    return $this->view->render($this->response, 'messages/single.tpl',[
+    return $this->view->render($this->response, 'messages/single.tpl', [
       'message' => $message
     ]);
   }

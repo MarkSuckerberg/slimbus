@@ -23,7 +23,6 @@
         <th>ID</th>   
         <th>Mode</th>   
         <th>Result</th>   
-        <th>Map</th>    
         <th>Start</th>
         <th>Duration</th>
         <th>End</th>    
@@ -32,7 +31,9 @@
     </thead>
     <tbody>
     {% for round in rounds %}
+      {% if not round.server_data.hidden %}
       {% include('rounds/html/listingrow.tpl') %}
+      {% endif %}
     {% endfor %}
     </tbody>
   </table>

@@ -1,11 +1,9 @@
-<table class="table table-bordered table-condensed table-hover">
+<table class="table table-bordered table-condensed table-hover sort">
   <thead>
     <tr>
       <th>Timestamp</th>
-      <th>uid</th>
-      <th>X</th>
-      <th>Y</th>
-      <th>Z</th>
+      <th>Category</th>
+      <th>Info</th>
       <th>Content</th>
     </tr>
   </thead>
@@ -13,10 +11,12 @@
   {% for line in file %}
     <tr>
       <td class="align-middle">{{line.timestamp}}</td>
-      <td class="align-middle" style="background: #{{line.color}}"><code class="bg">{{line.device}}</code></td>
-      <td class="align-middle">{{line.x}}</td>
-      <td class="align-middle">{{line.y}}</td>
-      <td class="align-middle">{{line.z}}</td>
+      <td class="align-middle" style="background: #{{line.color}}"><code class="bg">{{line.category}}</code></td>
+      {% if line.info %}
+        <td class="align-middle" style="background: #{{line.infocolor}}"><code class="bg">{{line.info}}</code></td>
+      {% else %}
+        <td class="align-middle"></td>
+      {% endif %}
       <td class="align-middle">{{line.text|raw}}</td>
     </tr>
   {% endfor %}

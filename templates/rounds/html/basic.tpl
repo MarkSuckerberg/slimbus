@@ -43,7 +43,7 @@
     <tr>
       <th class="align-middle text-right" colspan="2">Logs By Statbus</th>
       <td colspan="2">
-        <a class="btn btn-warning btn-sm" href="{{path_for('round.gamelogs',{'id': round.id})}}">Collated Game & Attack Logs</a> <a class="btn btn-warning btn-sm" href="{{path_for('round.logs',{'id': round.id})}}">Log File Listing</a>
+        <!-- <a class="btn btn-warning btn-sm" href="{{path_for('round.gamelogs',{'id': round.id})}}">Collated Game & Attack Logs</a> --> <a class="btn btn-warning btn-sm" href="{{path_for('round.logs',{'id': round.id})}}">Log File Listing</a>
         {% if round.data.newscaster_stories %}
         <a class="btn btn-warning btn-sm" href="{{path_for('round.log',{'id': round.id,'file':'newscaster.json'})}}">News Stories</a>
         {% endif %}

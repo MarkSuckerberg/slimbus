@@ -2,16 +2,21 @@
 
 namespace Statbus\Models;
 
-class Messages {
+use Parsedown;
+
+class Messages
+{
 
   private $settings;
 
-  public function __construct(array $settings){
+  public function __construct(array $settings)
+  {
     $this->settings = $settings;
-    $this->md = new \Parsedown();
+    $this->md = new Parsedown();
   }
 
-  public function parseMessage(&$message) {
+  public function parseMessage(&$message)
+  {
     $message->text = strip_tags($message->text);
     $message->text = $this->md->text($message->text);
     $message->text = str_replace([
@@ -23,54 +28,54 @@ class Messages {
       "'",
       "<br>"
     ], $message->text);
-    switch ($message->type){
+    switch ($message->type) {
       case 'memo':
-        $message->icon  = 'sticky-note';
+        $message->icon = 'sticky-note';
         $message->class = 'bg-primary text-white';
-      break;
+        break;
 
       case 'message':
         $message->icon = 'envelope';
         $message->class = 'bg-success text-white';
-      break;
+        break;
 
       case 'message sent':
         $message->icon = 'envelope-open';
         $message->class = 'border-success';
-      break;
+        break;
 
       default:
       case 'note':
         $message->icon = 'flag';
         $message->class = 'border-warning';
-      break;
+        break;
 
       case 'watchlist entry':
         $message->icon = 'binoculars';
         $message->class = 'bg-danger text-white';
-      break;
+        break;
 
     }
 
-    if(isset($message->severity)){
+    if (isset($message->severity)) {
       switch ($message->severity) {
         case 'high':
           $message->severity_class = 'danger';
-        break;
+          break;
 
         case 'medium':
           $message->severity_class = 'warning';
-        break;
+          break;
 
         case 'minor':
           $message->severity_class = 'info';
-        break;
+          break;
 
         default:
         case 'none':
           $message->severity_class = 'success';
           $message->severity = "None";
-        break;
+          break;
       }
       $message->severity = ucwords($message->severity);
     }

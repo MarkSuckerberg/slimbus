@@ -2,41 +2,46 @@
 
 namespace Statbus\Models;
 
-class Library {
+use Parsedown;
+
+class Library
+{
 
   private $settings;
   public $deaths;
 
-  public function __construct(){
-    $this->md = new \Parsedown();
+  public function __construct()
+  {
+    $this->md = new Parsedown();
   }
 
-  public function parseBook(&$book){
-    switch($book->category){
+  public function parseBook(&$book)
+  {
+    switch ($book->category) {
 
       default:
       case 'Ficton':
         $book->class = 'success';
-      break;
+        break;
 
       case 'Non-Fiction':
         $book->class = 'info';
-      break;
+        break;
 
       case 'Reference':
         $book->class = 'warning';
-      break;
+        break;
 
       case 'Religion':
         $book->class = 'primary';
-      break;
+        break;
 
       case 'Adult':
         $book->class = 'danger censored';
-      break;
+        break;
 
     }
-    if(isset($book->content)){
+    if (isset($book->content)) {
       $book->content = $this->md->text($book->content);
     }
     return $book;

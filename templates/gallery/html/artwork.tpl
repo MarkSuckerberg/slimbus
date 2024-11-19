@@ -6,8 +6,8 @@
           <span class="h5" id="rating">{{collection.rating}}</span><span class="text-muted">/5</span> (<span id="votes">{{collection.votes}}</span>)
         {% endif %}
         <form class="star_rating" action="{{path_for('gallery.index',{'server':server.name})}}" method="POST">
-        <input type="hidden" class="sb_csrf_name" name="{{csrf.keys.name}}" value="{{csrf.name}}">
-        <input type="hidden" class="sb_csrf_value" name="{{csrf.keys.value}}" value="{{csrf.value}}">
+        <input type="hidden" class="sb_csrf_name" name="sb_csrf_name" value="{{csrf.sb_csrf_name}}">
+        <input type="hidden" class="sb_csrf_value" name="sb_csrf_value" value="{{csrf.sb_csrf_value}}">
         <input type="hidden" name="artwork" value="{{collection.md5}}">
           <div class="rating">
             <input id="{{collection.md5}}_star5" name="rating" type="radio" value="5" class="radio-btn hide" />

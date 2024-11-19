@@ -1,7 +1,6 @@
 <div class="row">
   <div class="col-md-2 col-sm-12 h3">
     <i class="fas fa-circle"></i> {{round.id}}<br>
-    <small>{{round.map}}</small>
   </div>
   <div class="col-md-8 col-sm-12 h3 text-center">
     <i class="fas fa-{{round.icons.mode}}"></i> {{round.mode}} <br>

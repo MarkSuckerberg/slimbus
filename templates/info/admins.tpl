@@ -14,7 +14,7 @@
 <hr>
 <style>
 .perm-flag {
-  font-size: 25%;
+  font-size: 50%;
 }
 
 .perm-flag:before {
@@ -27,7 +27,7 @@
       <th>ckey</th>
       <th data-toggle="tooltip" title="Time spent as ghost is roughly equated with active adminning. Time spent living is time roughly equated with playing instead of adminning.">Play time</th>
       <th>Connections</th>
-      <th>Rank</th>
+      <th data-sorter="false">Rank</th>
       <th class="perm-flag">Feedback</th>
       {% for name, bits in perms %}
       <th class="perm-flag">{{name}}</th>
@@ -38,7 +38,7 @@
     {% for a in admins %}
       <tr>
         <td>{{a.label|raw}}</td>
-        <td>
+        <td data-text="{{a.total}}">
           {% if a.total %}
           <div class="progress" style="border: 1px solid black;">
             <div class="progress-bar" role="progressbar" style="width: {{a.ghost/a.total * 100}}%; background: #EEE;" data-toggle="tooltip" title="Ghost: {{a.ghost}} minutes"></div>
@@ -53,9 +53,9 @@
         <td>{% if a.feedback %}<a href="{{a.feedback}}" target="_blank" rel="noopener noreferrer">Thread</a>{% endif %}</td>
         {% for name, bits in perms %}
           {% if a.flags b-and bits %}
-          <td class="table-success text-success text-center" data-toggle="tooltip" title="{{a.ckey}} has {{name}}"><i class="far fa-check-circle"></i></td>
+          <td class="table-success text-success text-center" data-toggle="tooltip" title="{{a.ckey}} has {{name}}" data-text="1"><i class="far fa-check-circle"></i></td>
           {% else %}
-          <td class="table-danger text-danger text-center" data-toggle="tooltip" title="{{a.ckey}} does not have {{name}}"><i class="far fa-times-circle"></i></td>
+          <td class="table-danger text-danger text-center" data-toggle="tooltip" title="{{a.ckey}} does not have {{name}}" data-text="0"><i class="far fa-times-circle"></i></td>
           {% endif %}
         {% endfor %}
       </tr>

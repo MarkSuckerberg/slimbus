@@ -1,13 +1,9 @@
 {% extends "base/index.html"%}
 {% block content %}
 
-	{% if fromCache %}
-		<div class="alert alert-info">This data was loaded from a cached file</div>
-	{% endif %}
-
 	<div id="population"></div>
 	<p class="lead">
-		This chart shows the average number of players, admins, and completed rounds, by hour, across all servers, for the last 30 days.
+		This chart shows the retention of players over all time. New players had never played before the listed month, retained players had played the month prior, and returnin players had played before, but not the previous month.
 	</p>
 {% endblock %}
 
@@ -25,22 +21,19 @@ enabled: false
 },
 series: [
 {
-name: 'Players',
-data: unpack(json, 'players')
+name: 'New',
+data: unpack(json, 'new')
 }, {
-name: 'Players (Rolling Average)',
-data: unpack(json, 'averagePlayers')
+name: 'Retained',
+data: unpack(json, 'retained')
 }, {
-name: 'Admins',
-data: unpack(json, 'admins')
-}, {
-name: 'Rounds',
-data: unpack(json, 'rounds')
+name: 'Returning',
+data: unpack(json, 'returned')
 }
 ],
 xaxis: {
 type: "datetime",
-categories: unpack(json, 'date')
+categories: unpack(json, 'datestamp')
 },
 tooltip: {
 x: {

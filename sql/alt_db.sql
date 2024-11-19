@@ -4,7 +4,7 @@ CREATE TABLE `art_vote` (
   `artwork` varchar(32) NOT NULL DEFAULT '',
   `ckey` varchar(32) NOT NULL DEFAULT '',
   `rating` int(1) unsigned NOT NULL DEFAULT 1,
-  `server` varchar(16) NOT NULL DEFAULT '',
+  `server` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `artwork` (`artwork`,`ckey`),
   KEY `id` (`id`)

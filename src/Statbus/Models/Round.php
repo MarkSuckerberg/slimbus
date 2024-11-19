@@ -2,7 +2,10 @@
 
 namespace Statbus\Models;
 
-class Round {
+use DateTimeImmutable;
+
+class Round
+{
 
   private $settings;
 
@@ -26,11 +29,13 @@ class Round {
   public $shutdown_time;
   public $deaths;
 
-  public function __construct(array $settings){
+  public function __construct(array $settings)
+  {
     $this->settings = $settings;
   }
 
-  public function parseRound(&$round){
+  public function parseRound(&$round)
+  {
 
     $round->icons = new \stdclass;
     $round->icons->mode = 'dice-d6';
@@ -42,10 +47,9 @@ class Round {
 
     $round = $this->mapStatus($round);
     #$round->server_data = (object) $this->settings['servers'][array_search($round->port, array_column($this->settings['servers'], 'port'))];
-   
+
     $server = array_keys(array_column($this->settings['servers'], 'port'), $round->port);
-    if(count($server) == 1)  $round->server_data = (object) $this->settings['servers'][$server[0]];
-    else                     $round->server_data = (object) $this->settings['servers'][array_search($round->ip, array_column($this->settings['servers'], 'ip'))];
+    $round->server_data = (object) $this->settings['servers'][count($server) == 1 ? $server[0] : array_search($round->ip, array_column($this->settings['servers'], 'ip'))];
 
     if (!$round->port) {
       $round->server = 'Unknown';
@@ -54,38 +58,38 @@ class Round {
     }
     $round->shuttle = preg_replace("/[^a-zA-Z\d\s:]/", '', $round->shuttle);
     $round->shuttle = ucwords($round->shuttle);
-    if('' == $round->shuttle) $round->shuttle = false;
+    if ('' == $round->shuttle)
+      $round->shuttle = false;
 
-    if($round->commit_hash && isset($this->settings['github'])){
-      $round->commit_href = "https://github.com/".$this->settings['github']."/commit/$round->commit_hash";
+    if ($round->commit_hash && isset($this->settings['github'])) {
+      $round->commit_href = "https://github.com/" . $this->settings['github'] . "/commit/$round->commit_hash";
     }
 
-    $round->commit_hash = substr($round->commit_hash, 0,7);
+    $round->commit_hash = substr($round->commit_hash, 0, 7);
 
     //Remote Log Links
     $round->logs = FALSE; //No logs by default
-    if(isset($round->server_data->public_logs)){
+    if (isset($round->server_data->public_logs)) {
       $round->logs = TRUE;
-      $date = new \DateTime($round->initialize_datetime);
+      $date = new DateTimeImmutable($round->initialize_datetime);
       $year = $date->format('Y');
       $month = $date->format('m');
       $day = $date->format('d');
       $round->remote_logs = $round->server_data->public_logs;
-      $round->remote_logs.= "$year/$month/$day/round-$round->id.zip";
+      $round->remote_logs .= "$year/$month/$day/round-$round->id.zip";
       $round->remote_logs_dir = str_replace('.zip', '', $round->remote_logs);
       $round->admin_logs_dir = str_replace($round->server_data->public_logs, $round->server_data->raw_logs, $round->remote_logs_dir);
     }
-
-    $round->map_url = str_replace(' ', '', $round->map);
     return $round;
   }
 
-  public function mapStatus(&$round) {
-    @$round->icons->mode = $this->settings['mode_icons'][$round->mode];
-    if ('' === $round->result || 'Undefined' === $round->result){
+  public function mapStatus(&$round)
+  {
+    @$round->icons->mode = $this->settings['mode_icons'][$round->mode] ?? 'question-circle';
+    if ('' === $round->result || 'Undefined' === $round->result) {
       $round->result = $round->end_state;
     }
-    if(strpos($round->result, 'Win - ') !== FALSE){
+    if (strpos($round->result, 'Win - ') !== FALSE) {
       $round->class = 'success';
       $round->icons->result = 'check';
     } else if (strpos($round->result, 'Loss - ') !== FALSE) {

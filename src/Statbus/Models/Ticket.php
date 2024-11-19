@@ -4,19 +4,22 @@ namespace Statbus\Models;
 
 use Statbus\Models\Player as Player;
 
-class Ticket {
+class Ticket
+{
 
   private $settings;
 
-  public function __construct(array $settings){
+  public function __construct(array $settings)
+  {
     $this->settings = $settings;
     $this->lastDate = null;
     $this->pm = new Player($settings);
   }
 
-  public function parseTicket(&$ticket){
+  public function parseTicket(&$ticket)
+  {
     $ticket->icon = "fa-ticket";
-    if (!isset($ticket->s_rank)){
+    if (!isset($ticket->s_rank)) {
       $ticket->s_rank = 'player';
       $ticket->r_rank = 'player';
     }
@@ -30,13 +33,13 @@ class Ticket {
     $ticket->recipient->ckey = $ticket->recipient_ckey;
     $ticket->recipient->rank = $ticket->r_rank;
     $ticket->recipient = $this->pm->parsePlayer($ticket->recipient);
-    
-    if(($ticket->sender->ckey && $ticket->recipient->ckey) && 'Ticket Opened' === $ticket->action){
+
+    if (($ticket->sender->ckey && $ticket->recipient->ckey) && 'Ticket Opened' === $ticket->action) {
       $ticket->bwoink = TRUE;
     }
 
-    if($this->lastDate){
-      $interval = date('U',strtotime($ticket->timestamp)) - date('U',strtotime($this->lastDate));
+    if ($this->lastDate) {
+      $interval = date('U', strtotime($ticket->timestamp)) - date('U', strtotime($this->lastDate));
       $ticket->interval = date('i:s', $interval);
     }
     $ticket->class = 'danger';
@@ -45,7 +48,7 @@ class Ticket {
     $ticket->message = strip_tags($ticket->message);
 
     $ticket->server_data = (object) $this->settings['servers'][array_search($ticket->ip, array_column($this->settings['servers'], 'ip'))];
-    
+
     #$server = array_keys(array_column($this->settings['servers'], 'port'), $ticket->port);
     #if(count($server) == 1)  $ticket->server_data = (object) $this->settings['servers'][$server[0]];
     #else                     $ticket->server_data = (object) $this->settings['servers'][array_keys(array_column($this->settings['servers'], 'ip'), long2ip($ticket->ip))];
@@ -57,15 +60,15 @@ class Ticket {
       default:
         $ticket->class = "secondary";
         $ticket->action_label = "Reply from ";
-      break;
+        break;
 
       case 'Ticket Opened':
-        if (null === $ticket->recipient->ckey){
+        if (null === $ticket->recipient->ckey) {
           $ticket->recipient = FALSE;
           $ticket->class = "primary";
         }
         $ticket->action_label = "Ticket Opened by";
-      break;
+        break;
 
       case 'Resolved':
         $ticket->class = "success";
@@ -74,7 +77,7 @@ class Ticket {
         $ticket->message = FALSE;
         $ticket->icon = "thumbs-up";
         $ticket->type = "action";
-      break;
+        break;
 
       case 'Closed':
         $ticket->class = "danger";
@@ -83,7 +86,7 @@ class Ticket {
         $ticket->message = FALSE;
         $ticket->type = "action";
         $ticket->icon = "times-circle";
-      break;
+        break;
 
       case 'Rejected':
         $ticket->class = "danger";
@@ -92,7 +95,7 @@ class Ticket {
         $ticket->message = FALSE;
         $ticket->type = "action";
         $ticket->icon = "undo";
-      break;
+        break;
 
       case 'IC Issue':
         $ticket->class = "dark";
@@ -101,7 +104,16 @@ class Ticket {
         $ticket->message = FALSE;
         $ticket->type = "action";
         $ticket->icon = "gavel";
-      break;
+        break;
+
+      case 'Skill Issue':
+        $ticket->class = "info";
+        $ticket->action_label = "Marked as Skill issue by ";
+        $ticket->recipient = FALSE;
+        $ticket->message = FALSE;
+        $ticket->type = "action";
+        $ticket->icon = "award";
+        break;
 
       case 'Disconnected':
         $ticket->class = "dark";
@@ -111,7 +123,7 @@ class Ticket {
         $ticket->message = FALSE;
         $ticket->type = "action";
         $ticket->icon = "window-close";
-      break;
+        break;
 
       case 'Reconnected':
         $ticket->class = "info";
@@ -121,60 +133,64 @@ class Ticket {
         $ticket->message = FALSE;
         $ticket->type = "action";
         $ticket->icon = "network-wired";
-      break;
+        break;
     }
-    if(isset($ticket->status)){
-      switch ($ticket->status){
+    if (isset($ticket->status)) {
+      switch ($ticket->status) {
         case 'Ticket Opened':
           $ticket->status_class = 'info';
           $ticket->icon = 'ticket-alt';
-          // $ticket->status = "Open";
-        break;
+          break;
 
         case 'Reply':
           $ticket->status_class = 'warning';
           $ticket->icon = "reply";
-        break;
+          break;
 
         case 'Resolved':
           $ticket->icon = 'thumbs-up';
           $ticket->status_class = 'success';
-        break;
+          break;
 
         case 'Closed':
           $ticket->icon = 'times-circle';
           $ticket->status_class = 'danger';
-        break;
+          break;
 
         case 'IC Issue':
           $ticket->status_class = "dark";
           $ticket->icon = "gavel";
-        break;
+          break;
+
+        case 'Skill Issue':
+          $ticket->status_class = "info";
+          $ticket->icon = "award";
+          break;
 
         case 'Disconnected':
           $ticket->status_class = "dark";
           $ticket->icon = "window-close";
-        break;
+          break;
 
         case 'Reconnected':
           $ticket->status_class = "info";
           $ticket->icon = "network-wired";
-        break;
+          break;
 
         case 'Rejected':
           $ticket->status_class = "danger";
           $ticket->icon = "undo";
-        break;
+          break;
 
         default:
-          $ticket->status_class = 'success';
-          // $ticket->status = "Resolved";
-        break;
+          $ticket->status_class = 'danger';
+          $ticket->icon = "question-circle";
+          break;
       }
     }
 
     $this->lastDate = $ticket->timestamp;
-    
+
     return $ticket;
   }
 }

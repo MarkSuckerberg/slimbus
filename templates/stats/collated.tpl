@@ -1,5 +1,5 @@
 {% extends "base/index.html"%}
-{% block pagetitle %}Round #{{round.id}}{% endblock %}
+{% block pagetitle %}Collated stats for {{stat.key_name}}{% endblock %}
 {% block content %}
 <h2><small>Collated stats for </small><code>{{stat.key_name}}</code></h2>
 <hr>
@@ -50,6 +50,9 @@
 
     <dt class="col-sm-3">Stat Version</dt>
     <dd class="col-sm-9">{{stat.version}}</dd>
+
+    <dt class="col-sm-3"><a href="{{path_for('stat.collate', {'stat': stat.key_name, 'version': stat.version})}}?format=json">Raw JSON</a></dt>
+    <dd class="col-sm-9"><pre>{{json}}</pre></dd>
   </dl>
 {% endblock %}
 {% block js %}

@@ -47,22 +47,16 @@
 </style>
 <h1>{{server.name}} Art Gallery</h1>
 <hr>
-<div class="row">
+<ul class="w-100" style="display: grid; grid-template-columns: repeat(3, 1fr)">
   {% for name, collection in art|sort((a, b) => b|length <=> a|length) %}
     {% if collection|length > 0 %}
-      <div class="col-md-4">
-        <h2>Collection "{{name|title}}"</h2>
-        <hr>
-        <ul class="list-unstyled">
         {% set path = name %}
-        {% for collection in art[name] %}
+        {% for collection in art[name]|sort((a, b) => b.rating <=> a.rating) %}
           {% include 'gallery/html/artwork.tpl' %}
         {% endfor %}
-        </ul>
-      </div>
     {% endif %}
   {% endfor %}
-</div>
+</ul>
 
 {% endblock %}
 
@@ -76,8 +70,8 @@ $('form.star_rating .radio-btn').change(function(e){
     method: form.attr('method'),
     data: form.serialize()
   }).done(function(reply){
-    $('.sb_csrf_name').val(reply.csrf.csrf.name)
-    $('.sb_csrf_value').val(reply.csrf.csrf.value)
+    $('.sb_csrf_name').val(reply.csrf.sb_csrf_name)
+    $('.sb_csrf_value').val(reply.csrf.sb_csrf_value)
     $('#collection-'+reply.votes.artwork+' #rating').text(reply.votes.rating)
     $('#collection-'+reply.votes.artwork+' #votes').text(reply.votes.votes)
   })

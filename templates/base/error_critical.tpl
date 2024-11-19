@@ -11,13 +11,13 @@
     <a class="navbar-brand" href="{{path_for('statbus')}}"> {{ statbus.app_name }} </a>
     <div class="collapse navbar-collapse" id="navbar">
     <span class="navbar-text">
-      {% spaceless %}
+      {% apply spaceless %}
       {% if settings.debug %}
         <span class="badge badge-danger ml-2 px-2">
           <span class="text-light">DEBUG MODE</span>
         </span>
       {% endif %}
-      {% endspaceless %}
+      {% endapply %}
     </span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="farlse" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
