@@ -33,7 +33,9 @@ class AuthController extends Controller
       $this->AuthUrl = $this->remote . "oauth_create_session.php";
       $this->TokenUrl = $this->remote . "oauth.php";
       $this->AuthSessionUrl = $this->remote . "oauth_get_session_info.php";
-      $this->return_uri = $this->router->pathFor('auth_return');
+      $baseUri = $this->request->getUri();
+      $base = $baseUri->getScheme() . '://' . $baseUri->getHost();
+      $this->return_uri = parent::getFullURL($this->router->pathFor('auth_return'));
 
       if (isset($_SESSION['site_private_token'])) {
         $this->site_private_token = $_SESSION['site_private_token'];
@@ -99,6 +101,9 @@ class AuthController extends Controller
     if ('OK' != $res->status) {
       die("Something went wrong!");
     }
+    //Get a new ID when logging in
+    regenerate_statbus_session();
+    $_SESSION['ckey'] = $res->byond_ckey;
     foreach ($res as $k => $v) {
       $_SESSION['sb'][$k] = $v;
     }

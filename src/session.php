@@ -7,7 +7,7 @@ $secure = true;
 if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
   $secure = false;
 }
-session_set_cookie_params(432000, '/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_HOST), $secure, TRUE);
+session_set_cookie_params(432000, '/stats', parse_url($_SERVER['REQUEST_URI'], PHP_URL_HOST), $secure, true);
 
 start_statbus_session();
 
@@ -32,6 +32,15 @@ function destroy_statbus_session()
 
 function regenerate_statbus_session()
 {
+  $_SESSION['deleted'] = time();
+
+  session_regenerate_id();
+
+  unset($_SESSION['deleted']);
+  $_SESSION['canary'] = time();
+
+  /* Unused until I figure out why this doesn't work
+
   $new_id = session_create_id();
   $_SESSION['new_session_id'] = $new_id;
   $_SESSION['deleted'] = time();
@@ -44,38 +53,35 @@ function regenerate_statbus_session()
   unset($_SESSION['deleted']);
 
   $_SESSION['canary'] = time();
+  */
 }
 
 function _set_statbus_session_id($id)
 {
-  session_id($id);
+  session_commit();
 
   //Strict mode off to allow us to set the session ID
   ini_set('session.use_strict_mode', 0);
+  session_id($id);
   start_statbus_session();
-  ini_set('session.use_strict_mode', 1);
 
   check_statbus_session_valid();
 }
 
 function check_statbus_session_valid()
 {
-  if (isset($_SESSION['deleted']) && $_SESSION['deleted'] < time() - 120) {
+  if (isset($_SESSION['deleted']) && $_SESSION['deleted'] < time()) {
     error_log('Possible session hijack detected by ' . $_SERVER['REMOTE_ADDR']);
     destroy_statbus_session();
     return;
   }
 
-  if (isset($_SESSION['new_session_id'])) {
+  /*if (isset($_SESSION['new_session_id'])) {
     _set_statbus_session_id($_SESSION['new_session_id']);
     return;
-  }
+  }*/
 
-  if (php_sapi_name() != 'cli') {
-    $time = $_SERVER['REQUEST_TIME'];
-  } else {
-    $time = time();
-  }
+  $time = time();
 
   //Set session expiry to five days
   $timeout_duration = 432000;

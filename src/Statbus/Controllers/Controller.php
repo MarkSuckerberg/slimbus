@@ -60,8 +60,7 @@ class Controller
 
   public function getFullURL($path)
   {
-    $baseUri = $this->request->getUri();
-    $base = $baseUri->getScheme() . '://' . $baseUri->getHost();
+    $base = parse_url($this->request->getUri(), PHP_URL_HOST);
     return $base . $path;
   }
 }
