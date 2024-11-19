@@ -6,6 +6,8 @@ return [
   'github' => $_ENV['GITHUB'] ?? null,
   'auth' => [
     'remote_auth' => $_ENV['REMOTE_AUTH'] ?? false,
+    'client_id' => $_ENV['CLIENT_ID'] ?? null,
+    'client_secret' => $_ENV['CLIENT_SECRET'] ?? null,
     'oauth_start' => 'oauth_create_session.php',
     'token_url' => 'oauth.php',
     'auth_session' => 'oauth_get_session_info.php'
