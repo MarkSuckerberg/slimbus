@@ -50,25 +50,26 @@ class AuthController extends Controller
       return $response->withStatus(302);
     }
 
-    $ckey = $this->oidc->getVerifiedClaims('ckey');
-    if (!isset($ckey)) {
+    $byondKey = $this->oidc->getVerifiedClaims('ckey');
+    if (!isset($byondKey)) {
       return $this->view->render($response, 'base/error.tpl', [
         'message' => 'Ckey verification failed.',
         'code' => 403
       ]);
     }
 
-    echo json_encode($this->oidc->getVerifiedClaims());
-
     //Get a new ID when logging in
     regenerate_statbus_session();
-    $_SESSION['ckey'] = $ckey;
+    //Byond key is what auth returns
+    $_SESSION['byond_key'] = $byondKey;
+    //Ckeys have no spaces and are lowercase
+    $_SESSION['ckey'] = str_replace(' ', '', strtolower($byondKey));
 
 
     return $this->view->render($response, 'auth/return.tpl', [
       'return_uri' => $_SESSION['return_uri'] ?: false,
       'user' => $this->container->get('user'),
-      'user_ckey' => $ckey
+      'user_ckey' => $byondKey
     ]);
   }
 
