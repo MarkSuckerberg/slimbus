@@ -19,8 +19,8 @@ class Controller
   protected PrefixedDB $DB;
   protected Router $router;
   protected $settings;
-  protected ResponseInterface $response;
-  protected RequestInterface $request;
+  protected $response;
+  protected $request;
 
   public $page = 1;
   public $pages = 0;
