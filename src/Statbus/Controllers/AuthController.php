@@ -28,7 +28,7 @@ class AuthController extends Controller
       $this->settings['client_id'],
       $this->settings['client_secret']
     );
-    $this->oidc->setCertPath($this->settings['cert_path']);
+    //$this->oidc->setCertPath($this->settings['cert_path']);
   }
 
   public function auth($request, $response, $args)
