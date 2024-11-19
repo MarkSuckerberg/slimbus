@@ -5,7 +5,6 @@ use Jumbojett\OpenIDConnectClient;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Statbus\Controllers\Controller as Controller;
-use GuzzleHttp\Client;
 
 
 class AuthController extends Controller
@@ -18,16 +17,16 @@ class AuthController extends Controller
   {
     parent::__construct($container);
 
-    $settings = $container->get('settings')['statbus']['auth'];
+    $this->settings = $container->get('settings')['statbus']['auth'];
 
     if (!isset($settings['remote_auth'])) {
       return;
     }
 
     $this->oidc = new OpenIDConnectClient(
-      $settings['remote_auth'],
-      $settings['client_id'],
-      $settings['client_secret']
+      $this->settings['remote_auth'],
+      $this->settings['client_id'],
+      $this->settings['client_secret']
     );
     $this->oidc->setCertPath($this->settings['cert_path']);
   }
